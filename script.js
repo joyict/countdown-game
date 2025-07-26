@@ -103,14 +103,32 @@ let lives = 3;
 let timeLeft = 30;
 let rushTimer = null;
 let chaosCount = 1;
+let levelTimeLimit = 60; // 60 seconds per level
+let levelTimer = null;
+let currentLevel = 1;
 
 // Power-ups
 let activePowerUps = new Set();
 let powerUpTimers = new Map();
 
 // Leaderboard
-let leaderboard = JSON.parse(localStorage.getItem('hackathonLeaderboard')) || [];
+let leaderboard = [];
 let gameEndTime = new Date('2025-07-26T19:00:00');
+const API_BASE = '/.netlify/functions';
+
+// Test function for debugging
+window.testAPI = async function() {
+    try {
+        console.log('Testing API connection...');
+        const response = await fetch(`${API_BASE}/test`);
+        const result = await response.json();
+        console.log('API Test Result:', result);
+        return result;
+    } catch (error) {
+        console.error('API Test Failed:', error);
+        return { error: error.message };
+    }
+};
 
 // Sound effects (using Web Audio API for better performance)
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -224,6 +242,14 @@ function catchDancer(event) {
     if (Math.random() < 0.1 && !isGolden) { // 10% chance
         setTimeout(() => spawnGoldenDancer(), 2000);
     }
+    
+    // Chance to spawn evil guy on next appearance
+    setTimeout(() => {
+        if (gameActive && !spawnEvilGuy()) {
+            // If no evil guy spawned, continue normal pattern
+            changeMovementPattern();
+        }
+    }, 1000);
 }
 
 function changeMovementPattern() {
@@ -415,34 +441,42 @@ function setGameMode(mode) {
     // Configure mode-specific settings
     switch(mode) {
         case 'survival':
-            lives = 3;
-            document.getElementById('lives').style.display = 'inline-block';
-            document.getElementById('lives').textContent = `Lives: ${lives}`;
-            document.getElementById('gameText').textContent = 'Survival Mode - Don\'t miss!';
+            document.getElementById('gameText').textContent = 'Survival Mode - Avoid the evil guy!';
             break;
         case 'rush':
             timeLeft = 30;
             document.getElementById('timer').style.display = 'inline-block';
             document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+            document.getElementById('levelTimer').style.display = 'none';
             document.getElementById('gameText').textContent = 'Rush Mode - 30 seconds!';
+            if (levelTimer) {
+                clearInterval(levelTimer);
+                levelTimer = null;
+            }
             startRushTimer();
             break;
         case 'chaos':
             chaosCount = 2;
-            document.getElementById('gameText').textContent = 'Chaos Mode - Multiple dancers!';
+            document.getElementById('gameText').textContent = 'Chaos Mode - Watch out for traps!';
             spawnChaosMode();
             break;
         default:
-            document.getElementById('lives').style.display = 'none';
             document.getElementById('timer').style.display = 'none';
-            document.getElementById('gameText').textContent = 'Click the dancing man!';
+            document.getElementById('levelTimer').style.display = 'inline-block';
+            document.getElementById('gameText').textContent = 'Catch the dancing man, avoid the evil guy!';
     }
+    
+    // Always show lives in all modes now
+    document.getElementById('lives').style.display = 'inline-block';
 }
 
 function resetGame() {
     score = 0;
     streak = 0;
     speedMultiplier = 1;
+    lives = 3;
+    currentLevel = 1;
+    levelTimeLimit = 60;
     activePowerUps.clear();
     powerUpTimers.forEach(timer => clearTimeout(timer));
     powerUpTimers.clear();
@@ -452,15 +486,27 @@ function resetGame() {
         rushTimer = null;
     }
     
+    if (levelTimer) {
+        clearInterval(levelTimer);
+        levelTimer = null;
+    }
+    
     // Clear power-up display
     document.getElementById('powerUps').innerHTML = '';
+    
+    // Hide evil guy
+    document.getElementById('evilGuy').style.display = 'none';
+    document.getElementById('dancingMan').style.display = 'block';
     
     // Update displays
     document.getElementById('score').textContent = 'Score: 0';
     document.getElementById('streak').textContent = 'Streak: 0';
     document.getElementById('speed').textContent = 'Speed: 1x';
+    document.getElementById('lives').textContent = 'Lives: 3';
+    document.getElementById('levelTimer').textContent = 'Level Time: 60s';
     
     gameActive = true;
+    startLevelTimer();
 }
 
 function startRushTimer() {
@@ -493,24 +539,22 @@ function endGame() {
 }
 
 function handleMiss() {
-    if (currentGameMode === 'survival') {
-        lives--;
-        document.getElementById('lives').textContent = `Lives: ${lives}`;
-        playSound(200, 0.3, 'sawtooth'); // Miss sound
-        
-        if (lives <= 0) {
-            gameActive = false;
-            document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
-            endGame();
-        }
+    // All modes now have lives system
+    lives--;
+    document.getElementById('lives').textContent = `Lives: ${lives}`;
+    playSound(200, 0.3, 'sawtooth'); // Miss sound
+    
+    if (lives <= 0) {
+        gameActive = false;
+        document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
+        endGame();
+        return;
     }
     
     if (streak > 0) {
         streak = 0;
         document.getElementById('streak').textContent = `Streak: ${streak}`;
-        if (currentGameMode !== 'survival') {
-            document.getElementById('vibeMessage').textContent = "Missed! Streak reset! 💔";
-        }
+        document.getElementById('vibeMessage').textContent = `Missed! Lives: ${lives} 💔`;
     }
 }
 
@@ -584,6 +628,123 @@ function spawnGoldenDancer() {
     }, 5000);
 }
 
+function spawnEvilGuy() {
+    // 20% chance to spawn evil guy instead of dancing man
+    if (Math.random() < 0.2) {
+        document.getElementById('dancingMan').style.display = 'none';
+        const evilGuy = document.getElementById('evilGuy');
+        evilGuy.style.display = 'block';
+        
+        // Apply random movement pattern
+        const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+        evilGuy.style.animation = 'none';
+        evilGuy.offsetHeight; // Trigger reflow
+        evilGuy.style.animation = `${pattern} ${8 / speedMultiplier}s infinite linear`;
+        
+        // Hide evil guy after animation and show dancing man
+        setTimeout(() => {
+            evilGuy.style.display = 'none';
+            document.getElementById('dancingMan').style.display = 'block';
+        }, (8 / speedMultiplier) * 1000);
+        
+        return true;
+    }
+    return false;
+}
+
+function catchEvilGuy(event) {
+    if (!gameActive) return;
+    
+    event.stopPropagation();
+    
+    // Play evil sound
+    playSound(150, 0.5, 'sawtooth');
+    
+    // Lose a life
+    lives--;
+    document.getElementById('lives').textContent = `Lives: ${lives}`;
+    
+    // Reset streak
+    streak = 0;
+    document.getElementById('streak').textContent = `Streak: ${streak}`;
+    
+    // Hide evil guy immediately
+    document.getElementById('evilGuy').style.display = 'none';
+    document.getElementById('dancingMan').style.display = 'block';
+    
+    // Create negative effect
+    createNegativeEffect();
+    
+    // Check if game over
+    if (lives <= 0) {
+        gameActive = false;
+        document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
+        endGame();
+    } else {
+        document.getElementById('vibeMessage').textContent = `Evil guy caught you! Lives: ${lives} 😈`;
+    }
+}
+
+function createNegativeEffect() {
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+            const effect = document.createElement('div');
+            effect.innerHTML = ['💀', '😈', '🔥', '💥', '⚡'][Math.floor(Math.random() * 5)];
+            effect.style.position = 'fixed';
+            effect.style.left = Math.random() * 100 + '%';
+            effect.style.top = Math.random() * 100 + '%';
+            effect.style.fontSize = '2rem';
+            effect.style.pointerEvents = 'none';
+            effect.style.zIndex = '1000';
+            effect.style.color = '#ff0000';
+            effect.style.animation = 'negative-effect 1s ease-out forwards';
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1000);
+        }, i * 100);
+    }
+}
+
+function startLevelTimer() {
+    if (currentGameMode === 'rush') return; // Rush mode has its own timer
+    
+    levelTimeLimit = Math.max(60 - (currentLevel * 5), 20); // Decrease time per level, minimum 20s
+    let timeLeft = levelTimeLimit;
+    
+    document.getElementById('levelTimer').textContent = `Level Time: ${timeLeft}s`;
+    
+    levelTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('levelTimer').textContent = `Level Time: ${timeLeft}s`;
+        
+        if (timeLeft <= 5) {
+            // Urgent warning
+            playSound(800, 0.1, 'square');
+            document.getElementById('levelTimer').style.color = '#ff0000';
+        }
+        
+        if (timeLeft <= 0) {
+            // Time's up - lose a life
+            clearInterval(levelTimer);
+            lives--;
+            document.getElementById('lives').textContent = `Lives: ${lives}`;
+            document.getElementById('levelTimer').style.color = '#ff006e';
+            
+            if (lives <= 0) {
+                gameActive = false;
+                document.getElementById('vibeMessage').textContent = `Time's up! Final Score: ${score} ⏰`;
+                endGame();
+            } else {
+                // Start next level
+                currentLevel++;
+                document.getElementById('vibeMessage').textContent = `Time's up! Level ${currentLevel} - Lives: ${lives} ⏰`;
+                startLevelTimer();
+            }
+        }
+    }, 1000);
+}
+
 function spawnChaosMode() {
     // This would require more complex implementation with multiple dancers
     // For now, just increase speed significantly
@@ -593,11 +754,14 @@ function spawnChaosMode() {
 // Update miss detection to handle game modes
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.dancing-man') && 
+        !e.target.closest('.evil-guy') &&
         !e.target.closest('.link-button') && 
         !e.target.closest('.game-stats') &&
         !e.target.closest('.achievements') &&
         !e.target.closest('.mode-btn') &&
         !e.target.closest('.power-ups') &&
+        !e.target.closest('.leaderboard-modal') &&
+        !e.target.closest('.score-modal') &&
         gameActive) {
         handleMiss();
     }
@@ -605,11 +769,14 @@ document.addEventListener('click', function(e) {
 
 document.addEventListener('touchstart', function(e) {
     if (!e.target.closest('.dancing-man') && 
+        !e.target.closest('.evil-guy') &&
         !e.target.closest('.link-button') && 
         !e.target.closest('.game-stats') &&
         !e.target.closest('.achievements') &&
         !e.target.closest('.mode-btn') &&
         !e.target.closest('.power-ups') &&
+        !e.target.closest('.leaderboard-modal') &&
+        !e.target.closest('.score-modal') &&
         gameActive) {
         handleMiss();
     }
@@ -626,27 +793,62 @@ function checkHighScore() {
     }
 }
 
-function submitScore() {
+async function submitScore() {
     const playerName = document.getElementById('playerName').value.trim() || 'Anonymous';
-    const newEntry = {
-        name: playerName,
-        score: score,
-        mode: currentGameMode,
-        date: new Date().toISOString(),
-        streak: maxStreak
-    };
     
-    leaderboard.push(newEntry);
-    leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 10); // Keep top 10
-    
-    localStorage.setItem('hackathonLeaderboard', JSON.stringify(leaderboard));
-    
-    closeScoreModal();
-    updateLeaderboardDisplay();
-    
-    // Show success message
-    document.getElementById('vibeMessage').textContent = `${playerName} added to leaderboard! 🏆`;
+    try {
+        console.log('Submitting score to:', `${API_BASE}/submit-score`);
+        const response = await fetch(`${API_BASE}/submit-score`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: playerName,
+                score: score,
+                mode: currentGameMode,
+                streak: maxStreak
+            })
+        });
+        
+        if (!response.ok) {
+            console.error('Submit response not OK:', response.status, response.statusText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Score submitted successfully:', result);
+        
+        closeScoreModal();
+        await loadLeaderboard(); // Refresh leaderboard
+        
+        // Show success message
+        document.getElementById('vibeMessage').textContent = `${playerName} added to leaderboard! 🏆`;
+        
+    } catch (error) {
+        console.error('Error submitting score:', error);
+        
+        // Fallback to localStorage
+        console.log('Falling back to localStorage');
+        const newEntry = {
+            name: playerName,
+            score: score,
+            mode: currentGameMode,
+            streak: maxStreak,
+            created_at: new Date().toISOString()
+        };
+        
+        let localLeaderboard = JSON.parse(localStorage.getItem('hackathonLeaderboard')) || [];
+        localLeaderboard.push(newEntry);
+        localLeaderboard.sort((a, b) => b.score - a.score);
+        localLeaderboard = localLeaderboard.slice(0, 10);
+        localStorage.setItem('hackathonLeaderboard', JSON.stringify(localLeaderboard));
+        
+        closeScoreModal();
+        await loadLeaderboard();
+        
+        document.getElementById('vibeMessage').textContent = `${playerName} added to local leaderboard! 📱`;
+    }
 }
 
 function closeScoreModal() {
@@ -654,13 +856,45 @@ function closeScoreModal() {
     document.getElementById('playerName').value = '';
 }
 
-function toggleLeaderboard() {
+async function toggleLeaderboard() {
     const modal = document.getElementById('leaderboardModal');
     if (modal.style.display === 'flex') {
         modal.style.display = 'none';
     } else {
         modal.style.display = 'flex';
+        await loadLeaderboard();
         updateLeaderboardDisplay();
+    }
+}
+
+async function loadLeaderboard() {
+    try {
+        console.log('Loading leaderboard from:', `${API_BASE}/get-leaderboard`);
+        const response = await fetch(`${API_BASE}/get-leaderboard`);
+        
+        if (!response.ok) {
+            console.error('Response not OK:', response.status, response.statusText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Leaderboard loaded:', data);
+        leaderboard = data;
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        console.log('Falling back to localStorage');
+        // Fallback to localStorage if API fails
+        leaderboard = JSON.parse(localStorage.getItem('hackathonLeaderboard')) || [];
+        
+        // Show user that we're in offline mode
+        if (document.getElementById('leaderboardModal').style.display === 'flex') {
+            const list = document.getElementById('leaderboardList');
+            list.insertAdjacentHTML('afterbegin', `
+                <div style="background: rgba(255,165,0,0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; text-align: center;">
+                    ⚠️ Offline Mode - Scores saved locally only
+                </div>
+            `);
+        }
     }
 }
 
@@ -677,7 +911,7 @@ function updateLeaderboardDisplay() {
     const isGameEnded = timeUntilEnd <= 0;
     
     list.innerHTML = leaderboard.map((entry, index) => {
-        const date = new Date(entry.date);
+        const date = new Date(entry.created_at || entry.date);
         const timeAgo = getTimeAgo(date);
         const isWinner = isGameEnded && index === 0;
         
@@ -751,12 +985,22 @@ function createWinnerCelebration() {
 }
 
 // Initialize with random pattern
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     changeMovementPattern();
+    startLevelTimer(); // Start the level timer
+    await loadLeaderboard();
     updateLeaderboardDisplay();
     
     // Check for winner every minute after game ends
     setInterval(checkForWinner, 60000);
+    
+    // Refresh leaderboard every 30 seconds
+    setInterval(async () => {
+        await loadLeaderboard();
+        if (document.getElementById('leaderboardModal').style.display === 'flex') {
+            updateLeaderboardDisplay();
+        }
+    }, 30000);
     
     // Add mobile-specific styling
     if (window.innerWidth <= 768) {

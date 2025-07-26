@@ -60,8 +60,9 @@
                         <span class="score" id="score">Score: 0</span>
                         <span class="streak" id="streak">Streak: 0</span>
                         <span class="speed" id="speed">Speed: 1x</span>
-                        <span class="lives" id="lives" style="display: none;">Lives: 3</span>
+                        <span class="lives" id="lives">Lives: 3</span>
                         <span class="timer" id="timer" style="display: none;">Time: 30s</span>
+                        <span class="level-timer" id="levelTimer">Level Time: 60s</span>
                     </div>
                     <div class="power-ups" id="powerUps"></div>
                     <div class="achievements" id="achievements"></div>
@@ -100,6 +101,9 @@
             <div class="particles" id="particles"></div>
             <div class="dancing-man" id="dancingMan" onclick="catchDancer(event)" ontouchstart="catchDancer(event)">
                 <img src="dancing-man.svg" alt="Dancing Man" class="dancing-svg" />
+            </div>
+            <div class="evil-guy" id="evilGuy" onclick="catchEvilGuy(event)" ontouchstart="catchEvilGuy(event)" style="display: none;">
+                <img src="evil-guy.svg" alt="Evil Guy" class="evil-svg" />
             </div>
         </div>
 

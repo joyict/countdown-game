@@ -1,0 +1,27 @@
+{
+  "name": "bolt-hackathon-countdown-game",
+  "version": "1.0.0",
+  "description": "Interactive countdown game for Bolt.new Hackathon with competitive leaderboard",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^22.4.0"
+  },
+  "keywords": [
+    "game",
+    "countdown",
+    "hackathon",
+    "bolt",
+    "leaderboard",
+    "interactive"
+  ],
+  "author": "Joy ICT",
+  "license": "MIT"
+}
