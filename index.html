@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Results Countdown ✨</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title" data-text="⚡ Bolt.new Hackathon">⚡ Bolt.new Hackathon</h1>
+            <p class="subtitle">World's Largest Hackathon Results</p>
+            <div class="bolt-logo">
+                <span class="bolt-text">BOLT</span>
+                <span class="bolt-spark">⚡</span>
+            </div>
+            <div class="energy-bars">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <div class="countdown-container">
+            <div class="countdown" id="countdown">
+                <div class="time-unit">
+                    <span class="number" id="hours">00</span>
+                    <span class="label">Hours</span>
+                </div>
+                <div class="time-unit">
+                    <span class="number" id="minutes">00</span>
+                    <span class="label">Minutes</span>
+                </div>
+                <div class="time-unit">
+                    <span class="number" id="seconds">00</span>
+                    <span class="label">Seconds</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="vibes-section">
+            <div class="vibe-message" id="vibeMessage">
+                The anticipation is real! 🔥
+            </div>
+            <div class="game-section">
+                <div class="game-info">
+                    <div class="game-modes">
+                        <button class="mode-btn active" id="normalMode" onclick="setGameMode('normal')">Normal</button>
+                        <button class="mode-btn" id="survivalMode" onclick="setGameMode('survival')">Survival</button>
+                        <button class="mode-btn" id="rushMode" onclick="setGameMode('rush')">Rush</button>
+                        <button class="mode-btn" id="chaosMode" onclick="setGameMode('chaos')">Chaos</button>
+                    </div>
+                    <span class="game-text" id="gameText">Click the dancing man!</span>
+                    <div class="game-stats">
+                        <span class="score" id="score">Score: 0</span>
+                        <span class="streak" id="streak">Streak: 0</span>
+                        <span class="speed" id="speed">Speed: 1x</span>
+                        <span class="lives" id="lives" style="display: none;">Lives: 3</span>
+                        <span class="timer" id="timer" style="display: none;">Time: 30s</span>
+                    </div>
+                    <div class="power-ups" id="powerUps"></div>
+                    <div class="achievements" id="achievements"></div>
+                    <button class="leaderboard-btn" id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Leaderboard</button>
+                </div>
+                
+                <!-- Leaderboard Modal -->
+                <div class="leaderboard-modal" id="leaderboardModal">
+                    <div class="leaderboard-content">
+                        <div class="leaderboard-header">
+                            <h2>🏆 Hall of Fame</h2>
+                            <button class="close-btn" onclick="toggleLeaderboard()">×</button>
+                        </div>
+                        <div class="leaderboard-list" id="leaderboardList">
+                            <!-- Leaderboard entries will be populated here -->
+                        </div>
+                        <div class="leaderboard-footer">
+                            <p>Top scorer when countdown ends wins! 🎉</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Score Submission Modal -->
+                <div class="score-modal" id="scoreModal">
+                    <div class="score-content">
+                        <h2>🎉 New High Score!</h2>
+                        <p>Score: <span id="finalScore"></span></p>
+                        <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+                        <div class="score-buttons">
+                            <button onclick="submitScore()">Submit Score</button>
+                            <button onclick="closeScoreModal()">Skip</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="particles" id="particles"></div>
+            <div class="dancing-man" id="dancingMan" onclick="catchDancer(event)" ontouchstart="catchDancer(event)">
+                <img src="dancing-man.svg" alt="Dancing Man" class="dancing-svg" />
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Good luck to all the amazing builders! 💪</p>
+            <div class="links">
+                <a href="https://hackathon-countdown.netlify.app/" target="_blank" class="link-button">
+                    🎯 Another Countdown
+                </a>
+                <a href="https://worldslargesthackathon.devpost.com" target="_blank" class="link-button">
+                    🏆 Official Page
+                </a>
+                <a href="https://joy-ict.nl" target="_blank" class="link-button creator-link">
+                    💼 Creator Portfolio
+                </a>
+            </div>
+            <p class="creator">Made with ⚡ and love by <a href="https://joy-ict.nl" target="_blank"
+                    class="creator-name">Joy ICT</a></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
