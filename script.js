@@ -165,6 +165,59 @@ let invisibilityTimer = null;
 let evilGuyClones = [];
 let cursorPosition = { x: 0, y: 0 };
 
+// Game state
+let gameStarted = false;
+
+function startGame() {
+    if (gameStarted) return;
+    
+    gameStarted = true;
+    document.getElementById('startScreen').classList.add('hidden');
+    
+    // Initialize audio context on first interaction
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    // Play start sound
+    playSound(800, 0.3, 'triangle');
+    setTimeout(() => playSound(1000, 0.2, 'sine'), 200);
+    
+    // Start the game
+    gameActive = true;
+    changeMovementPattern();
+    startLevelTimer();
+    
+    document.getElementById('vibeMessage').textContent = "Game Started! Catch the dancing man! 🎯";
+}
+
+function showStartScreen() {
+    gameStarted = false;
+    gameActive = false;
+    document.getElementById('startScreen').classList.remove('hidden');
+    
+    // Hide game characters
+    document.getElementById('dancingMan').style.display = 'none';
+    document.getElementById('evilGuy').style.display = 'none';
+    
+    // Stop all animations
+    const dancer = document.getElementById('dancingMan');
+    const evilGuy = document.getElementById('evilGuy');
+    dancer.style.animation = 'none';
+    evilGuy.style.animation = 'none';
+    
+    // Clean up timers and clones
+    if (levelTimer) {
+        clearInterval(levelTimer);
+        levelTimer = null;
+    }
+    if (rushTimer) {
+        clearInterval(rushTimer);
+        rushTimer = null;
+    }
+    cleanupEvilGuyClones();
+}
+
 function catchDancer(event) {
     if (!gameActive) return;
     
@@ -622,6 +675,12 @@ function endRushMode() {
 
 function endGame() {
     gameActive = false;
+    
+    // Show start screen after a delay
+    setTimeout(() => {
+        showStartScreen();
+    }, 3000);
+    
     checkHighScore();
 }
 
