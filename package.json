@@ -4,7 +4,7 @@
   "description": "Interactive countdown game for Bolt.new Hackathon with competitive leaderboard",
   "main": "index.html",
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "node server.js",
     "build": "echo 'No build step required'",
     "deploy": "netlify deploy --prod"
   },
