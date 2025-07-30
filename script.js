@@ -166,7 +166,7 @@ function catchDancer(event) {
     // Check if it's a golden dancer (power-up)
     const dancer = document.getElementById('dancingMan');
     const dancerImg = dancer.querySelector('.dancing-svg');
-    const isGolden = dancerImg.src.includes('golden-dancer.svg');
+    const isGolden = dancerImg.src.includes('golden-dancer.png');
     
     if (isGolden) {
         activatePowerUp();
@@ -704,14 +704,14 @@ function spawnGoldenDancer() {
     const dancerImg = dancer.querySelector('.dancing-svg');
     
     // Change to golden dancer image
-    dancerImg.src = 'golden-dancer.svg';
+    dancerImg.src = 'golden-dancer.png';
     dancerImg.style.background = 'transparent';
     dancer.classList.add('golden-dancer');
     
     // Remove golden effect after 5 seconds if not caught
     setTimeout(() => {
         // Revert back to normal dancing man if still golden
-        if (dancerImg.src.includes('golden-dancer.svg')) {
+        if (dancerImg.src.includes('golden-dancer.png')) {
             dancerImg.src = 'dancing-man.svg';
             dancerImg.style.background = '';
         }

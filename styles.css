@@ -1051,7 +1051,7 @@ body::before {
     }
 }
 
-/* Golden dancer styles - works with golden-dancer.svg */
+/* Golden dancer styles - works with golden-dancer.png */
 .golden-dancer .dancing-svg {
     filter: drop-shadow(0 0 15px gold) brightness(1.3) saturate(1.2);
     background: transparent !important;
