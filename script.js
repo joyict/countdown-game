@@ -607,10 +607,6 @@ function setGameMode(mode) {
 }
 
 function resetGame() {
-    // Show start screen instead of immediately starting
-    showStartScreen();
-    
-    // Reset all game variables
     score = 0;
     streak = 0;
     speedMultiplier = 1;
@@ -1184,8 +1180,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    changeMovementPattern();
-    startLevelTimer(); // Start the level timer
     await loadLeaderboard();
     updateLeaderboardDisplay();
     
@@ -1439,10 +1433,6 @@ function cleanupEvilGuyClones() {
 
 // Update reset game to clean up advanced patterns
 function resetGame() {
-    // Show start screen instead of immediately starting
-    showStartScreen();
-    
-    // Reset all game variables
     score = 0;
     streak = 0;
     speedMultiplier = 1;
