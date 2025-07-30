@@ -172,6 +172,7 @@ function catchDancer(event) {
         activatePowerUp();
         // Revert back to normal dancing man
         dancerImg.src = 'dancing-man.svg';
+        dancerImg.style.background = '';
         dancer.classList.remove('golden-dancer');
     }
     
@@ -608,6 +609,24 @@ function handleMiss() {
     
     if (lives <= 0) {
         gameActive = false;
+        // Stop all animations
+        const dancer = document.getElementById('dancingMan');
+        const evilGuy = document.getElementById('evilGuy');
+        dancer.style.animation = 'none';
+        evilGuy.style.animation = 'none';
+        dancer.style.display = 'none';
+        evilGuy.style.display = 'none';
+        
+        // Clear any running timers
+        if (levelTimer) {
+            clearInterval(levelTimer);
+            levelTimer = null;
+        }
+        if (rushTimer) {
+            clearInterval(rushTimer);
+            rushTimer = null;
+        }
+        
         document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
         endGame();
         return;
@@ -686,6 +705,7 @@ function spawnGoldenDancer() {
     
     // Change to golden dancer image
     dancerImg.src = 'golden-dancer.svg';
+    dancerImg.style.background = 'transparent';
     dancer.classList.add('golden-dancer');
     
     // Remove golden effect after 5 seconds if not caught
@@ -693,6 +713,7 @@ function spawnGoldenDancer() {
         // Revert back to normal dancing man if still golden
         if (dancerImg.src.includes('golden-dancer.svg')) {
             dancerImg.src = 'dancing-man.svg';
+            dancerImg.style.background = '';
         }
         dancer.classList.remove('golden-dancer');
     }, 5000);
@@ -748,6 +769,24 @@ function catchEvilGuy(event) {
     // Check if game over
     if (lives <= 0) {
         gameActive = false;
+        // Stop all animations
+        const dancer = document.getElementById('dancingMan');
+        const evilGuy = document.getElementById('evilGuy');
+        dancer.style.animation = 'none';
+        evilGuy.style.animation = 'none';
+        dancer.style.display = 'none';
+        evilGuy.style.display = 'none';
+        
+        // Clear any running timers
+        if (levelTimer) {
+            clearInterval(levelTimer);
+            levelTimer = null;
+        }
+        if (rushTimer) {
+            clearInterval(rushTimer);
+            rushTimer = null;
+        }
+        
         document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
         endGame();
     } else {
@@ -803,6 +842,24 @@ function startLevelTimer() {
             
             if (lives <= 0) {
                 gameActive = false;
+                // Stop all animations
+                const dancer = document.getElementById('dancingMan');
+                const evilGuy = document.getElementById('evilGuy');
+                dancer.style.animation = 'none';
+                evilGuy.style.animation = 'none';
+                dancer.style.display = 'none';
+                evilGuy.style.display = 'none';
+                
+                // Clear any running timers
+                if (levelTimer) {
+                    clearInterval(levelTimer);
+                    levelTimer = null;
+                }
+                if (rushTimer) {
+                    clearInterval(rushTimer);
+                    rushTimer = null;
+                }
+                
                 document.getElementById('vibeMessage').textContent = `Time's up! Final Score: ${score} ⏰`;
                 endGame();
             } else {
