@@ -64,6 +64,31 @@
                     <button class="leaderboard-btn" id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Leaderboard</button>
                 </div>
                 
+                <!-- Start Screen -->
+                <div class="start-screen" id="startScreen">
+                    <div class="start-content">
+                        <h2>🎮 Ready to Play?</h2>
+                        <p>Click any character to start the game!</p>
+                        <div class="start-characters">
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="dancing-man.svg" alt="Dancing Man" class="start-dancing-svg" />
+                                <span class="character-label">Dancing Man</span>
+                            </div>
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="golden-dancer.png" alt="Golden Dancer" class="start-golden-svg" />
+                                <span class="character-label">Golden Dancer</span>
+                            </div>
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="evil-guy.svg" alt="Evil Guy" class="start-evil-svg" />
+                                <span class="character-label">Evil Guy</span>
+                            </div>
+                        </div>
+                        <div class="start-buttons">
+                            <button class="start-btn" onclick="startGame()">🚀 New Game</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Leaderboard Modal -->
                 <div class="leaderboard-modal" id="leaderboardModal">
                     <div class="leaderboard-content">
