@@ -148,11 +148,22 @@ const movementPatterns = [
     'dance-vertical-up',
     'dance-vertical-down',
     'dance-corner-to-corner',
-    'dance-spiral'
+    'dance-spiral',
+    'dance-figure-eight',
+    'dance-random-walk',
+    'dance-stop-and-go',
+    'dance-feint',
+    'dance-invisible-phases',
+    'dance-circular',
+    'dance-pendulum'
 ];
 
 let currentPatternIndex = 0;
 let teleportMode = false;
+let chasingMode = false;
+let invisibilityTimer = null;
+let evilGuyClones = [];
+let cursorPosition = { x: 0, y: 0 };
 
 function catchDancer(event) {
     if (!gameActive) return;
@@ -314,11 +325,24 @@ function createThemeCelebration() {
 function changeMovementPattern() {
     const dancer = document.getElementById('dancingMan');
     
-    // 30% chance for teleport mode
-    teleportMode = Math.random() < 0.3;
+    // 25% chance for teleport mode, 15% for chasing mode, 10% for temporary invisibility
+    const randomValue = Math.random();
+    teleportMode = randomValue < 0.25;
+    chasingMode = !teleportMode && randomValue < 0.4;
+    const invisibilityMode = !teleportMode && !chasingMode && randomValue < 0.5;
     
     if (teleportMode) {
         teleportDancer();
+        return;
+    }
+    
+    if (chasingMode) {
+        startChasingCursor(dancer);
+        return;
+    }
+    
+    if (invisibilityMode) {
+        startTemporaryInvisibility(dancer);
         return;
     }
     
@@ -720,22 +744,38 @@ function spawnGoldenDancer() {
 }
 
 function spawnEvilGuy() {
-    // 20% chance to spawn evil guy instead of dancing man
-    if (Math.random() < 0.2) {
+    // 25% chance to spawn evil guy instead of dancing man
+    if (Math.random() < 0.25) {
         document.getElementById('dancingMan').style.display = 'none';
         const evilGuy = document.getElementById('evilGuy');
         evilGuy.style.display = 'block';
         
-        // Apply random movement pattern
-        const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
-        evilGuy.style.animation = 'none';
-        evilGuy.offsetHeight; // Trigger reflow
-        evilGuy.style.animation = `${pattern} ${8 / speedMultiplier}s infinite linear`;
+        // 30% chance for chasing behavior, 20% for group spawn, 10% for invisibility
+        const behaviorRandom = Math.random();
+        
+        if (behaviorRandom < 0.3) {
+            // Chasing cursor behavior
+            startChasingCursor(evilGuy, true);
+        } else if (behaviorRandom < 0.5) {
+            // Group spawn behavior
+            spawnEvilGuyGroup();
+        } else if (behaviorRandom < 0.6) {
+            // Temporary invisibility
+            startTemporaryInvisibility(evilGuy);
+        } else {
+            // Regular movement pattern
+            const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+            evilGuy.style.animation = 'none';
+            evilGuy.offsetHeight; // Trigger reflow
+            evilGuy.style.animation = `${pattern} ${8 / speedMultiplier}s infinite linear`;
+        }
         
         // Hide evil guy after animation and show dancing man
         setTimeout(() => {
             evilGuy.style.display = 'none';
+            evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
             document.getElementById('dancingMan').style.display = 'block';
+            cleanupEvilGuyClones();
         }, (8 / speedMultiplier) * 1000);
         
         return true;
@@ -1068,6 +1108,19 @@ function getTimeAgo(date) {
 
 // Initialize with random pattern
 document.addEventListener('DOMContentLoaded', async () => {
+    // Track cursor position for chasing behavior
+    document.addEventListener('mousemove', (e) => {
+        cursorPosition.x = e.clientX;
+        cursorPosition.y = e.clientY;
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+            cursorPosition.x = e.touches[0].clientX;
+            cursorPosition.y = e.touches[0].clientY;
+        }
+    });
+    
     changeMovementPattern();
     startLevelTimer(); // Start the level timer
     await loadLeaderboard();
@@ -1133,6 +1186,252 @@ celebrationStyle.textContent = `
 `;
 document.head.appendChild(celebrationStyle);
 
+// Advanced movement pattern functions
+function startChasingCursor(element, isEvilGuy = false) {
+    element.classList.add('chasing-cursor');
+    element.style.animation = 'none';
+    
+    const chaseDuration = isEvilGuy ? 6000 : 8000; // Evil guy chases for shorter time
+    const chaseSpeed = isEvilGuy ? 200 : 300; // Evil guy is faster
+    
+    const chaseInterval = setInterval(() => {
+        if (!gameActive) {
+            clearInterval(chaseInterval);
+            return;
+        }
+        
+        const rect = element.getBoundingClientRect();
+        const currentX = rect.left;
+        const currentY = window.innerHeight - rect.bottom;
+        
+        // Calculate direction to cursor with some lag for more natural movement
+        const targetX = cursorPosition.x - 40; // Center on cursor
+        const targetY = window.innerHeight - cursorPosition.y - 40;
+        
+        // Add some randomness to make it less perfect
+        const randomOffsetX = (Math.random() - 0.5) * 50;
+        const randomOffsetY = (Math.random() - 0.5) * 50;
+        
+        const finalX = Math.max(0, Math.min(window.innerWidth - 80, targetX + randomOffsetX));
+        const finalY = Math.max(0, Math.min(window.innerHeight - 80, targetY + randomOffsetY));
+        
+        element.style.left = finalX + 'px';
+        element.style.bottom = finalY + 'px';
+        
+    }, chaseSpeed);
+    
+    // Stop chasing after duration
+    setTimeout(() => {
+        clearInterval(chaseInterval);
+        element.classList.remove('chasing-cursor');
+        
+        // Return to normal movement
+        if (gameActive) {
+            const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+            element.style.animation = `${pattern} ${8 / speedMultiplier}s infinite linear`;
+            
+            // Reset position after animation
+            setTimeout(() => {
+                element.style.left = '-100px';
+                element.style.bottom = '-20px';
+            }, (8 / speedMultiplier) * 1000);
+        }
+    }, chaseDuration);
+    
+    // Play chasing sound
+    playSound(600, 0.3, 'sawtooth');
+}
+
+function startTemporaryInvisibility(element) {
+    const totalDuration = 8000;
+    const invisiblePhases = [
+        { start: 2000, duration: 1500 },
+        { start: 5000, duration: 1000 },
+        { start: 6500, duration: 800 }
+    ];
+    
+    // Apply normal movement pattern first
+    const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+    element.style.animation = 'none';
+    element.offsetHeight;
+    element.style.animation = `${pattern} ${totalDuration / 1000}s infinite linear`;
+    
+    // Schedule invisibility phases
+    invisiblePhases.forEach(phase => {
+        setTimeout(() => {
+            element.classList.add('temporarily-invisible');
+            playSound(1200, 0.2, 'triangle'); // Disappear sound
+            
+            setTimeout(() => {
+                element.classList.remove('temporarily-invisible');
+                playSound(800, 0.2, 'sine'); // Reappear sound
+            }, phase.duration);
+        }, phase.start);
+    });
+}
+
+function spawnEvilGuyGroup() {
+    const mainEvilGuy = document.getElementById('evilGuy');
+    const groupSize = Math.floor(Math.random() * 3) + 2; // 2-4 evil guys
+    
+    // Apply pattern to main evil guy
+    const pattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+    mainEvilGuy.style.animation = 'none';
+    mainEvilGuy.offsetHeight;
+    mainEvilGuy.style.animation = `${pattern} ${8 / speedMultiplier}s infinite linear`;
+    
+    // Create clones
+    for (let i = 0; i < groupSize - 1; i++) {
+        setTimeout(() => {
+            const clone = document.createElement('div');
+            clone.className = 'evil-guy-clone';
+            clone.innerHTML = '<img src="evil-guy.svg" alt="Evil Guy Clone" class="evil-svg" />';
+            clone.onclick = (e) => catchEvilGuyClone(e, clone);
+            clone.ontouchstart = (e) => catchEvilGuyClone(e, clone);
+            
+            // Random starting position and pattern
+            const clonePattern = movementPatterns[Math.floor(Math.random() * movementPatterns.length)];
+            const delay = Math.random() * 2; // Random delay up to 2 seconds
+            
+            clone.style.animationDelay = delay + 's';
+            clone.style.animation = `${clonePattern} ${(8 / speedMultiplier) + delay}s infinite linear`;
+            
+            document.body.appendChild(clone);
+            evilGuyClones.push(clone);
+            
+            // Remove clone after animation
+            setTimeout(() => {
+                if (clone.parentNode) {
+                    clone.parentNode.removeChild(clone);
+                }
+                evilGuyClones = evilGuyClones.filter(c => c !== clone);
+            }, ((8 / speedMultiplier) + delay) * 1000);
+            
+        }, i * 500); // Stagger clone appearances
+    }
+    
+    // Play group spawn sound
+    playSound(400, 0.5, 'sawtooth');
+    setTimeout(() => playSound(350, 0.3, 'sawtooth'), 200);
+}
+
+function catchEvilGuyClone(event, clone) {
+    if (!gameActive) return;
+    
+    event.stopPropagation();
+    
+    // Same penalty as main evil guy
+    playSound(150, 0.5, 'sawtooth');
+    
+    lives--;
+    document.getElementById('lives').textContent = `Lives: ${lives}`;
+    
+    streak = 0;
+    document.getElementById('streak').textContent = `Streak: ${streak}`;
+    
+    // Remove the clone immediately
+    if (clone.parentNode) {
+        clone.parentNode.removeChild(clone);
+    }
+    evilGuyClones = evilGuyClones.filter(c => c !== clone);
+    
+    createNegativeEffect();
+    
+    if (lives <= 0) {
+        gameActive = false;
+        // Stop all animations and clean up
+        const dancer = document.getElementById('dancingMan');
+        const evilGuy = document.getElementById('evilGuy');
+        dancer.style.animation = 'none';
+        evilGuy.style.animation = 'none';
+        dancer.style.display = 'none';
+        evilGuy.style.display = 'none';
+        
+        cleanupEvilGuyClones();
+        
+        if (levelTimer) {
+            clearInterval(levelTimer);
+            levelTimer = null;
+        }
+        if (rushTimer) {
+            clearInterval(rushTimer);
+            rushTimer = null;
+        }
+        
+        document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${score} 💀`;
+        endGame();
+    } else {
+        document.getElementById('vibeMessage').textContent = `Evil clone got you! Lives: ${lives} 😈`;
+    }
+}
+
+function cleanupEvilGuyClones() {
+    evilGuyClones.forEach(clone => {
+        if (clone.parentNode) {
+            clone.parentNode.removeChild(clone);
+        }
+    });
+    evilGuyClones = [];
+}
+
+// Update reset game to clean up advanced patterns
+function resetGame() {
+    score = 0;
+    streak = 0;
+    speedMultiplier = 1;
+    lives = 3;
+    currentLevel = 1;
+    levelTimeLimit = 60;
+    currentTheme = 'default';
+    activePowerUps.clear();
+    powerUpTimers.forEach(timer => clearTimeout(timer));
+    powerUpTimers.clear();
+    
+    // Clean up advanced movement patterns
+    chasingMode = false;
+    teleportMode = false;
+    if (invisibilityTimer) {
+        clearTimeout(invisibilityTimer);
+        invisibilityTimer = null;
+    }
+    cleanupEvilGuyClones();
+    
+    // Reset character states
+    const dancer = document.getElementById('dancingMan');
+    const evilGuy = document.getElementById('evilGuy');
+    dancer.classList.remove('chasing-cursor', 'temporarily-invisible');
+    evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
+    
+    if (rushTimer) {
+        clearInterval(rushTimer);
+        rushTimer = null;
+    }
+    
+    if (levelTimer) {
+        clearInterval(levelTimer);
+        levelTimer = null;
+    }
+    
+    // Reset theme to default
+    document.body.className = '';
+    
+    // Clear power-up display
+    document.getElementById('powerUps').innerHTML = '';
+    
+    // Hide evil guy
+    document.getElementById('evilGuy').style.display = 'none';
+    document.getElementById('dancingMan').style.display = 'block';
+    
+    // Update displays
+    document.getElementById('score').textContent = 'Score: 0';
+    document.getElementById('streak').textContent = 'Streak: 0';
+    document.getElementById('speed').textContent = 'Speed: 1x';
+    document.getElementById('lives').textContent = 'Lives: 3';
+    document.getElementById('levelTimer').textContent = 'Level Time: 60s';
+    
+    gameActive = true;
+    startLevelTimer();
+}
 // Add some extra flair on load
 document.addEventListener('DOMContentLoaded', () => {
     document.body.style.opacity = '0';
