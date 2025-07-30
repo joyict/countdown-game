@@ -508,22 +508,6 @@ body::before {
     20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
-.golden-dancer .dancing-svg {
-    filter: drop-shadow(0 0 15px gold) hue-rotate(45deg) brightness(1.2);
-    animation: svg-dance 0.8s ease-in-out infinite, golden-glow 1s ease-in-out infinite, golden-wiggle 0.6s ease-in-out infinite;
-}
-
-@keyframes golden-glow {
-    0%, 100% { filter: drop-shadow(0 0 15px gold) hue-rotate(45deg) brightness(1.2); }
-    50% { filter: drop-shadow(0 0 25px gold) hue-rotate(45deg) brightness(1.5); }
-}
-
-@keyframes golden-wiggle {
-    0%, 100% { transform: translateY(0px) rotate(-3deg) scaleX(1) skewX(0deg); }
-    25% { transform: translateY(-3px) rotate(2deg) scaleX(1.02) skewX(1deg); }
-    50% { transform: translateY(-6px) rotate(-1deg) scaleX(0.98) skewX(-1deg); }
-    75% { transform: translateY(-3px) rotate(1deg) scaleX(1.01) skewX(0.5deg); }
-}
 
 @keyframes pulse-hint {
     0%, 100% { opacity: 0.8; }
