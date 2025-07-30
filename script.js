@@ -169,9 +169,14 @@ let cursorPosition = { x: 0, y: 0 };
 let gameStarted = false;
 
 function startGame() {
-    if (gameStarted) return;
+    if (gameStarted && gameActive) return; // Prevent multiple starts only if game is already active
     
+    // Reset all game state first
+    resetGameState();
+    
+    // Now start the game
     gameStarted = true;
+    gameActive = true;
     document.getElementById('startScreen').classList.add('hidden');
     
     // Initialize audio context on first interaction
@@ -183,30 +188,15 @@ function startGame() {
     playSound(800, 0.3, 'triangle');
     setTimeout(() => playSound(1000, 0.2, 'sine'), 200);
     
-    // Start the game
-    gameActive = true;
+    // Start game mechanics
     changeMovementPattern();
     startLevelTimer();
     
     document.getElementById('vibeMessage').textContent = "Game Started! Catch the dancing man! 🎯";
 }
 
-function showStartScreen() {
-    gameStarted = false;
-    gameActive = false;
-    document.getElementById('startScreen').classList.remove('hidden');
-    
-    // Hide game characters
-    document.getElementById('dancingMan').style.display = 'none';
-    document.getElementById('evilGuy').style.display = 'none';
-    
-    // Stop all animations
-    const dancer = document.getElementById('dancingMan');
-    const evilGuy = document.getElementById('evilGuy');
-    dancer.style.animation = 'none';
-    evilGuy.style.animation = 'none';
-    
-    // Clean up timers and clones
+function resetGameState() {
+    // Stop all existing timers and intervals
     if (levelTimer) {
         clearInterval(levelTimer);
         levelTimer = null;
@@ -215,7 +205,89 @@ function showStartScreen() {
         clearInterval(rushTimer);
         rushTimer = null;
     }
+    if (invisibilityTimer) {
+        clearTimeout(invisibilityTimer);
+        invisibilityTimer = null;
+    }
+    
+    // Clear all power-up timers
+    powerUpTimers.forEach(timer => clearTimeout(timer));
+    powerUpTimers.clear();
+    
+    // Clean up clones and advanced patterns
     cleanupEvilGuyClones();
+    
+    // Reset character states
+    const dancer = document.getElementById('dancingMan');
+    const evilGuy = document.getElementById('evilGuy');
+    
+    // Remove all special classes
+    dancer.classList.remove('chasing-cursor', 'temporarily-invisible', 'caught', 'teleport-out', 'teleport-in', 'golden-dancer');
+    evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
+    
+    // Reset positions and animations
+    dancer.style.animation = 'none';
+    evilGuy.style.animation = 'none';
+    dancer.style.left = '-100px';
+    dancer.style.bottom = '-20px';
+    evilGuy.style.left = '-100px';
+    evilGuy.style.bottom = '-20px';
+    dancer.style.transform = '';
+    evilGuy.style.transform = '';
+    
+    // Reset visibility
+    dancer.style.display = 'block';
+    evilGuy.style.display = 'none';
+    
+    // Reset dancing man image to normal
+    const dancerImg = dancer.querySelector('.dancing-svg');
+    if (dancerImg.src.includes('golden-dancer.png')) {
+        dancerImg.src = 'dancing-man.svg';
+        dancerImg.style.background = '';
+    }
+    
+    // Reset game variables
+    score = 0;
+    streak = 0;
+    maxStreak = 0;
+    speedMultiplier = 1;
+    lives = 3;
+    currentLevel = 1;
+    levelTimeLimit = 60;
+    currentTheme = 'default';
+    chasingMode = false;
+    teleportMode = false;
+    
+    // Clear power-ups
+    activePowerUps.clear();
+    
+    // Reset theme to default
+    document.body.className = '';
+    
+    // Clear displays
+    document.getElementById('powerUps').innerHTML = '';
+    document.getElementById('achievements').innerHTML = '';
+    
+    // Update UI displays
+    document.getElementById('score').textContent = 'Score: 0';
+    document.getElementById('streak').textContent = 'Streak: 0';
+    document.getElementById('speed').textContent = 'Speed: 1x';
+    document.getElementById('lives').textContent = 'Lives: 3';
+    document.getElementById('levelTimer').textContent = 'Level Time: 60s';
+    document.getElementById('levelTimer').style.color = '#ff006e';
+    
+    // Reset mode-specific displays
+    document.getElementById('timer').style.display = 'none';
+    document.getElementById('levelTimer').style.display = 'inline-block';
+}
+
+function showStartScreen() {
+    gameStarted = false;
+    gameActive = false;
+    document.getElementById('startScreen').classList.remove('hidden');
+    
+    // Use the comprehensive reset function
+    resetGameState();
 }
 
 function catchDancer(event) {
@@ -675,6 +747,7 @@ function endRushMode() {
 
 function endGame() {
     gameActive = false;
+    gameStarted = false; // Allow new games to start
     
     // Show start screen after a delay
     setTimeout(() => {
@@ -1433,61 +1506,8 @@ function cleanupEvilGuyClones() {
 
 // Update reset game to clean up advanced patterns
 function resetGame() {
-    score = 0;
-    streak = 0;
-    speedMultiplier = 1;
-    lives = 3;
-    currentLevel = 1;
-    levelTimeLimit = 60;
-    currentTheme = 'default';
-    activePowerUps.clear();
-    powerUpTimers.forEach(timer => clearTimeout(timer));
-    powerUpTimers.clear();
-    
-    // Clean up advanced movement patterns
-    chasingMode = false;
-    teleportMode = false;
-    if (invisibilityTimer) {
-        clearTimeout(invisibilityTimer);
-        invisibilityTimer = null;
-    }
-    cleanupEvilGuyClones();
-    
-    // Reset character states
-    const dancer = document.getElementById('dancingMan');
-    const evilGuy = document.getElementById('evilGuy');
-    dancer.classList.remove('chasing-cursor', 'temporarily-invisible');
-    evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
-    
-    if (rushTimer) {
-        clearInterval(rushTimer);
-        rushTimer = null;
-    }
-    
-    if (levelTimer) {
-        clearInterval(levelTimer);
-        levelTimer = null;
-    }
-    
-    // Reset theme to default
-    document.body.className = '';
-    
-    // Clear power-up display
-    document.getElementById('powerUps').innerHTML = '';
-    
-    // Hide evil guy
-    document.getElementById('evilGuy').style.display = 'none';
-    document.getElementById('dancingMan').style.display = 'block';
-    
-    // Update displays
-    document.getElementById('score').textContent = 'Score: 0';
-    document.getElementById('streak').textContent = 'Streak: 0';
-    document.getElementById('speed').textContent = 'Speed: 1x';
-    document.getElementById('lives').textContent = 'Lives: 3';
-    document.getElementById('levelTimer').textContent = 'Level Time: 60s';
-    
-    gameActive = true;
-    startLevelTimer();
+    // Show start screen instead of auto-starting
+    showStartScreen();
 }
 // Add some extra flair on load
 document.addEventListener('DOMContentLoaded', () => {
