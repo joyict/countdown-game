@@ -1,6 +1,6 @@
-# 🕺 Bolt.new Hackathon Countdown Game
+# 🕺 Dancing Man Catcher Game
 
-An interactive countdown website for the World's Largest Hackathon results, featuring a competitive dancing man catching game!
+An interactive reflexes game where you catch dancing characters as they move across the screen in various patterns!
 
 ## 🎮 Game Features
 
@@ -26,7 +26,7 @@ An interactive countdown website for the World's Largest Hackathon results, feat
 ### Competitive Features
 - **🏆 Leaderboard**: Top 10 high scores with player names
 - **Achievement System**: Unlock achievements for various milestones
-- **Winner Declaration**: Top scorer when countdown ends wins!
+- **High Score Competition**: Compete for the top spot on the leaderboard!
 - **Real-time Stats**: Score, streak, speed multiplier tracking
 
 ## 🎨 Technical Features
@@ -39,7 +39,7 @@ An interactive countdown website for the World's Largest Hackathon results, feat
 
 ## 🚀 Live Demo
 
-Visit the live game: [Your Netlify URL]
+Play the game live: [Your Game URL]
 
 ## 🛠️ Technologies Used
 
@@ -60,12 +60,12 @@ Fully responsive design with:
 
 ## 🏆 How to Win
 
-1. Play any game mode to build your high score
+1. Choose your preferred game mode
 2. Catch the dancing man as he moves across the screen
 3. Build streaks for bonus points
 4. Catch golden dancers for power-ups
 5. Submit your score to the leaderboard
-6. Be the top scorer when the countdown ends (July 26th, 7 PM) to win!
+6. Compete for the highest score and claim the top spot!
 
 ## 🎯 Game Tips
 
@@ -84,8 +84,8 @@ To run locally:
 
 ## 📄 License
 
-Created with ⚡ and good vibes for the Bolt.new Hackathon community.
+Created with 🎮 and passion for gaming enthusiasts everywhere.
 
 ---
 
-**Made by [Joy ICT](https://joy-ict.nl)** | **For the Bolt.new Hackathon** | **May the best catcher win!** 🎉
+**Made by [Joy ICT](https://joy-ict.nl)** | **Challenge Your Reflexes** | **May the best catcher win!** 🎉

@@ -58,13 +58,13 @@ body::before {
     font-size: 3.5rem;
     font-weight: 900;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f, #06ffa5);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: rainbow-glow 3s ease-in-out infinite, title-float 4s ease-in-out infinite;
-    text-shadow: 0 0 30px rgba(255, 0, 110, 0.5);
+    text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
     position: relative;
 }
 
@@ -73,7 +73,7 @@ body::before {
     position: absolute;
     top: 0;
     left: 0;
-    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f, #06ffa5);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -98,81 +98,95 @@ body::before {
     opacity: 0.9;
 }
 
-.countdown-container {
+.game-intro {
     margin: 3rem 0;
 }
 
-.countdown {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
-.time-unit {
+.intro-content {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
     backdrop-filter: blur(20px);
     border-radius: 20px;
-    padding: 2.5rem 2rem;
-    min-width: 140px;
+    padding: 2rem;
     border: 2px solid transparent;
     background-clip: padding-box;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.time-unit::before {
+.intro-content::before {
     content: '';
     position: absolute;
     top: -2px;
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f, #06ffa5);
     border-radius: 22px;
     z-index: -1;
     animation: border-glow 3s ease-in-out infinite;
 }
 
-.time-unit:hover {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(255, 0, 110, 0.3);
+.intro-content h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #06ffa5, #3a86ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.instructions {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.instruction {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #06ffa5;
+    transition: all 0.3s ease;
+}
+
+.instruction:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.game-logo {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.game-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(45deg, #ff6b35, #f7931e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    letter-spacing: 3px;
+}
+
+.game-spark {
+    font-size: 2rem;
+    animation: spark-zap 1s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px #ff6b35);
 }
 
 @keyframes border-glow {
     0%, 100% { opacity: 0.6; }
     50% { opacity: 1; }
-}
-
-.number {
-    display: block;
-    font-family: 'Orbitron', monospace;
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(45deg, #06ffa5, #3a86ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 20px rgba(6, 255, 165, 0.5);
-    animation: number-pulse 2s ease-in-out infinite;
-}
-
-@keyframes number-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.label {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.8;
 }
 
 .vibes-section {
@@ -243,32 +257,6 @@ body::before {
     50% { height: 40px; opacity: 1; }
 }
 
-.bolt-logo {
-    margin: 1rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.bolt-text {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.5rem;
-    font-weight: 900;
-    background: linear-gradient(45deg, #ffeb3b, #ff9800);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
-    letter-spacing: 3px;
-}
-
-.bolt-spark {
-    font-size: 2rem;
-    animation: spark-zap 1s ease-in-out infinite;
-    filter: drop-shadow(0 0 10px #ffeb3b);
-}
-
 @keyframes spark-zap {
     0%, 100% { transform: scale(1) rotate(0deg); }
     50% { transform: scale(1.2) rotate(15deg); }
@@ -325,16 +313,6 @@ body::before {
     border-color: rgba(255, 255, 255, 0.4);
 }
 
-.creator-link {
-    background: linear-gradient(45deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
-    border-color: rgba(255, 193, 7, 0.3);
-}
-
-.creator-link:hover {
-    background: linear-gradient(45deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.3));
-    border-color: rgba(255, 193, 7, 0.5);
-}
-
 .creator {
     margin-top: 1rem;
     font-size: 0.9rem;
@@ -343,7 +321,7 @@ body::before {
 }
 
 .creator-name {
-    color: #ffeb3b;
+    color: #ff6b35;
     text-decoration: none;
     font-weight: bold;
     transition: all 0.3s ease;
@@ -351,7 +329,17 @@ body::before {
 
 .creator-name:hover {
     color: #fff;
-    text-shadow: 0 0 10px #ffeb3b;
+    text-shadow: 0 0 10px #ff6b35;
+}
+
+.creator-link {
+    background: linear-gradient(45deg, rgba(255, 107, 53, 0.2), rgba(247, 147, 30, 0.2));
+    border-color: rgba(255, 107, 53, 0.3);
+}
+
+.creator-link:hover {
+    background: linear-gradient(45deg, rgba(255, 107, 53, 0.3), rgba(247, 147, 30, 0.3));
+    border-color: rgba(255, 107, 53, 0.5);
 }
 
 /* Dancing Man Styles */
@@ -763,13 +751,13 @@ body::before {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.leaderboard-entry.winner {
+.leaderboard-entry.top-score {
     background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 179, 71, 0.2));
     border-color: #ffd700;
-    animation: winner-glow 2s ease-in-out infinite;
+    animation: top-score-glow 2s ease-in-out infinite;
 }
 
-@keyframes winner-glow {
+@keyframes top-score-glow {
     0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
     50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
 }
@@ -814,22 +802,6 @@ body::before {
     padding: 2rem;
     opacity: 0.7;
     font-style: italic;
-}
-
-.winner-announcement {
-    background: linear-gradient(45deg, #ffd700, #ffb347);
-    color: #333;
-    padding: 1rem;
-    border-radius: 15px;
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    animation: winner-pulse 1s ease-in-out infinite;
-}
-
-@keyframes winner-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
 }
 
 .leaderboard-footer {
@@ -1158,6 +1130,15 @@ body::before {
         position: relative;
         min-height: 200px; /* Ensure space for dancing man */
         overflow: visible;
+    }
+    
+    .instructions {
+        gap: 1rem;
+    }
+    
+    .instruction {
+        font-size: 1rem;
+        padding: 0.6rem;
     }
     
     .dancing-man {
