@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon Results Countdown ✨</title>
+    <title>Dancing Man Catcher Game ✨</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title" data-text="⚡ Bolt.new Hackathon">⚡ Bolt.new Hackathon</h1>
-            <p class="subtitle">World's Largest Hackathon Results</p>
-            <div class="bolt-logo">
-                <span class="bolt-text">BOLT</span>
-                <span class="bolt-spark">⚡</span>
+            <h1 class="title" data-text="🕺 Dancing Man Catcher">🕺 Dancing Man Catcher</h1>
+            <p class="subtitle">The Ultimate Reflexes Challenge</p>
+            <div class="game-logo">
+                <span class="game-text">CATCH</span>
+                <span class="game-spark">🎯</span>
             </div>
             <div class="energy-bars">
                 <div class="bar"></div>
@@ -26,26 +26,21 @@
             </div>
         </div>
 
-        <div class="countdown-container">
-            <div class="countdown" id="countdown">
-                <div class="time-unit">
-                    <span class="number" id="hours">00</span>
-                    <span class="label">Hours</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="minutes">00</span>
-                    <span class="label">Minutes</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="seconds">00</span>
-                    <span class="label">Seconds</span>
+        <div class="game-intro">
+            <div class="intro-content">
+                <h2>🎮 How to Play</h2>
+                <div class="instructions">
+                    <div class="instruction">🎯 Click the dancing man as he moves across the screen</div>
+                    <div class="instruction">⚡ Build streaks for bonus points</div>
+                    <div class="instruction">🌟 Catch golden dancers for power-ups</div>
+                    <div class="instruction">😈 Avoid the evil guy - he'll cost you a life!</div>
                 </div>
             </div>
         </div>
 
         <div class="vibes-section">
             <div class="vibe-message" id="vibeMessage">
-                The anticipation is real! 🔥
+                Ready to test your reflexes? 🔥
             </div>
             <div class="game-section">
                 <div class="game-info">
@@ -55,7 +50,7 @@
                         <button class="mode-btn" id="rushMode" onclick="setGameMode('rush')">Rush</button>
                         <button class="mode-btn" id="chaosMode" onclick="setGameMode('chaos')">Chaos</button>
                     </div>
-                    <span class="game-text" id="gameText">Click the dancing man!</span>
+                    <span class="game-text" id="gameText">Catch the dancing man!</span>
                     <div class="game-stats">
                         <span class="score" id="score">Score: 0</span>
                         <span class="streak" id="streak">Streak: 0</span>
@@ -80,7 +75,7 @@
                             <!-- Leaderboard entries will be populated here -->
                         </div>
                         <div class="leaderboard-footer">
-                            <p>Top scorer when countdown ends wins! 🎉</p>
+                            <p>Compete for the highest score! 🎉</p>
                         </div>
                     </div>
                 </div>
@@ -108,19 +103,16 @@
         </div>
 
         <div class="footer">
-            <p>Good luck to all the amazing builders! 💪</p>
+            <p>Challenge your friends and beat the high score! 💪</p>
             <div class="links">
-                <a href="https://hackathon-countdown.netlify.app/" target="_blank" class="link-button">
-                    🎯 Another Countdown
-                </a>
-                <a href="https://worldslargesthackathon.devpost.com" target="_blank" class="link-button">
-                    🏆 Official Page
+                <a href="#" onclick="resetGame(); return false;" class="link-button">
+                    🔄 New Game
                 </a>
                 <a href="https://joy-ict.nl" target="_blank" class="link-button creator-link">
                     💼 Creator Portfolio
                 </a>
             </div>
-            <p class="creator">Made with ⚡ and love by <a href="https://joy-ict.nl" target="_blank"
+            <p class="creator">Made with 🎮 and passion by <a href="https://joy-ict.nl" target="_blank"
                     class="creator-name">Joy ICT</a></p>
         </div>
     </div>

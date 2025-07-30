@@ -1,40 +1,18 @@
-// Set the target date (July 26th, 2025 at 19:00)
-const targetDate = new Date('2025-07-26T19:00:00');
-
 // Vibe messages that rotate
 const vibeMessages = [
-    "The anticipation is real! 🔥",
-    "Bolt.new builders unite! ⚡",
-    "The wait is almost over! 🚀",
-    "Innovation at lightning speed! 🌟",
-    "History in the making! 💫",
-    "The future is being built! 🛠️",
-    "Bolt-powered creativity! ⚡",
-    "Dreams becoming reality! 🌈",
-    "World's largest hackathon! 🌍",
+    "Ready to test your reflexes? 🔥",
+    "Catch them all! ⚡",
+    "Lightning fast reactions! 🚀",
+    "Master of the dance floor! 🌟",
+    "Unstoppable catcher! 💫",
+    "Reflexes of steel! 🛠️",
+    "Dance floor domination! ⚡",
+    "Precision and speed! 🌈",
+    "The ultimate challenge! 🌍",
     "Ready to be amazed! ✨"
 ];
 
 let currentVibeIndex = 0;
-
-function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = targetDate.getTime() - now;
-    
-    if (distance < 0) {
-        document.getElementById('countdown').innerHTML = '<div class="time-unit"><span class="number">🎉</span><span class="label">Results are here!</span></div>';
-        document.getElementById('vibeMessage').textContent = "The moment has arrived! 🎊";
-        return;
-    }
-    
-    const hours = Math.floor(distance / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-}
 
 function rotateVibeMessage() {
     const vibeElement = document.getElementById('vibeMessage');
@@ -62,9 +40,6 @@ function createParticle() {
 }
 
 // Initialize
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
 // Rotate vibe messages every 3 seconds
 setInterval(rotateVibeMessage, 3000);
 
@@ -113,7 +88,6 @@ let powerUpTimers = new Map();
 
 // Leaderboard
 let leaderboard = [];
-let gameEndTime = new Date('2025-07-26T19:00:00');
 const API_BASE = '/.netlify/functions';
 
 // Test function for debugging
@@ -838,11 +812,11 @@ async function submitScore() {
             created_at: new Date().toISOString()
         };
         
-        let localLeaderboard = JSON.parse(localStorage.getItem('hackathonLeaderboard')) || [];
+        let localLeaderboard = JSON.parse(localStorage.getItem('dancingManLeaderboard')) || [];
         localLeaderboard.push(newEntry);
         localLeaderboard.sort((a, b) => b.score - a.score);
         localLeaderboard = localLeaderboard.slice(0, 10);
-        localStorage.setItem('hackathonLeaderboard', JSON.stringify(localLeaderboard));
+        localStorage.setItem('dancingManLeaderboard', JSON.stringify(localLeaderboard));
         
         closeScoreModal();
         await loadLeaderboard();
@@ -884,7 +858,7 @@ async function loadLeaderboard() {
         console.error('Error loading leaderboard:', error);
         console.log('Falling back to localStorage');
         // Fallback to localStorage if API fails
-        leaderboard = JSON.parse(localStorage.getItem('hackathonLeaderboard')) || [];
+        leaderboard = JSON.parse(localStorage.getItem('dancingManLeaderboard')) || [];
         
         // Show user that we're in offline mode
         if (document.getElementById('leaderboardModal').style.display === 'flex') {
@@ -906,20 +880,16 @@ function updateLeaderboardDisplay() {
         return;
     }
     
-    const now = new Date();
-    const timeUntilEnd = gameEndTime - now;
-    const isGameEnded = timeUntilEnd <= 0;
-    
     list.innerHTML = leaderboard.map((entry, index) => {
         const date = new Date(entry.created_at || entry.date);
         const timeAgo = getTimeAgo(date);
-        const isWinner = isGameEnded && index === 0;
+        const isTopScore = index === 0;
         
         return `
-            <div class="leaderboard-entry ${isWinner ? 'winner' : ''}">
+            <div class="leaderboard-entry ${isTopScore ? 'top-score' : ''}">
                 <div class="rank">${index + 1}</div>
                 <div class="player-info">
-                    <div class="player-name">${entry.name} ${isWinner ? '👑' : ''}</div>
+                    <div class="player-name">${entry.name} ${isTopScore ? '👑' : ''}</div>
                     <div class="player-details">
                         ${entry.mode} • Streak: ${entry.streak} • ${timeAgo}
                     </div>
@@ -928,14 +898,6 @@ function updateLeaderboardDisplay() {
             </div>
         `;
     }).join('');
-    
-    if (isGameEnded && leaderboard.length > 0) {
-        list.insertAdjacentHTML('afterbegin', `
-            <div class="winner-announcement">
-                🎉 WINNER: ${leaderboard[0].name} with ${leaderboard[0].score} points! 🎉
-            </div>
-        `);
-    }
 }
 
 function getTimeAgo(date) {
@@ -951,48 +913,12 @@ function getTimeAgo(date) {
     return `${diffDays}d ago`;
 }
 
-// Check for winner when countdown ends
-function checkForWinner() {
-    const now = new Date();
-    if (now >= gameEndTime && leaderboard.length > 0) {
-        const winner = leaderboard[0];
-        document.getElementById('vibeMessage').textContent = 
-            `🏆 WINNER: ${winner.name} with ${winner.score} points! 🏆`;
-        
-        // Show confetti or celebration effect
-        createWinnerCelebration();
-    }
-}
-
-function createWinnerCelebration() {
-    for (let i = 0; i < 50; i++) {
-        setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.innerHTML = ['🎉', '🏆', '👑', '⭐', '🎊'][Math.floor(Math.random() * 5)];
-            confetti.style.position = 'fixed';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.top = '-50px';
-            confetti.style.fontSize = '2rem';
-            confetti.style.pointerEvents = 'none';
-            confetti.style.zIndex = '1000';
-            confetti.style.animation = 'confetti-fall 3s ease-out forwards';
-            
-            document.body.appendChild(confetti);
-            
-            setTimeout(() => confetti.remove(), 3000);
-        }, i * 100);
-    }
-}
-
 // Initialize with random pattern
 document.addEventListener('DOMContentLoaded', async () => {
     changeMovementPattern();
     startLevelTimer(); // Start the level timer
     await loadLeaderboard();
     updateLeaderboardDisplay();
-    
-    // Check for winner every minute after game ends
-    setInterval(checkForWinner, 60000);
     
     // Refresh leaderboard every 30 seconds
     setInterval(async () => {
