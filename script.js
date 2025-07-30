@@ -86,6 +86,16 @@ let currentLevel = 1;
 let activePowerUps = new Set();
 let powerUpTimers = new Map();
 
+// Dynamic backgrounds
+let currentTheme = 'default';
+const themes = [
+    { name: 'default', minScore: 0, displayName: 'Deep Space' },
+    { name: 'neon', minScore: 50, displayName: 'Neon City' },
+    { name: 'cosmic', minScore: 150, displayName: 'Cosmic Void' },
+    { name: 'retro', minScore: 300, displayName: 'Retro Grid' },
+    { name: 'matrix', minScore: 500, displayName: 'Matrix Code' }
+];
+
 // Leaderboard
 let leaderboard = [];
 const API_BASE = '/.netlify/functions';
@@ -178,6 +188,9 @@ function catchDancer(event) {
     document.getElementById('score').textContent = `Score: ${score}`;
     document.getElementById('streak').textContent = `Streak: ${streak}`;
     
+    // Check for theme changes
+    checkThemeChange();
+    
     // Speed up the dancer (unless slow motion is active)
     if (!activePowerUps.has('slow')) {
         speedMultiplier = Math.min(1 + (score * 0.05), 3); // Max 3x speed
@@ -216,6 +229,74 @@ function catchDancer(event) {
     updateVibeMessage();
     
     // Spawn golden dancer occasionally
+function checkThemeChange() {
+    // Find the appropriate theme for current score
+    let newTheme = 'default';
+    for (let i = themes.length - 1; i >= 0; i--) {
+        if (score >= themes[i].minScore) {
+            newTheme = themes[i].name;
+            break;
+        }
+    }
+    
+    // Change theme if different from current
+    if (newTheme !== currentTheme) {
+        changeTheme(newTheme);
+    }
+}
+
+function changeTheme(newTheme) {
+    const body = document.body;
+    
+    // Remove current theme class
+    if (currentTheme !== 'default') {
+        body.classList.remove(`theme-${currentTheme}`);
+    }
+    
+    // Add new theme class
+    if (newTheme !== 'default') {
+        body.classList.add(`theme-${newTheme}`);
+    }
+    
+    currentTheme = newTheme;
+    
+    // Find theme display name
+    const themeData = themes.find(t => t.name === newTheme);
+    const themeName = themeData ? themeData.displayName : 'Deep Space';
+    
+    // Show theme change message
+    if (newTheme !== 'default') {
+        document.getElementById('vibeMessage').textContent = `🌟 Theme Unlocked: ${themeName}! 🌟`;
+        
+        // Play theme change sound
+        playSound(1000, 0.3, 'triangle');
+        setTimeout(() => playSound(1200, 0.2, 'sine'), 200);
+        
+        // Create theme change celebration
+        createThemeCelebration();
+    }
+}
+
+function createThemeCelebration() {
+    for (let i = 0; i < 12; i++) {
+        setTimeout(() => {
+            const celebration = document.createElement('div');
+            celebration.innerHTML = ['🌟', '✨', '🎨', '🌈', '💫', '🎭'][Math.floor(Math.random() * 6)];
+            celebration.style.position = 'fixed';
+            celebration.style.left = Math.random() * 100 + '%';
+            celebration.style.top = Math.random() * 100 + '%';
+            celebration.style.fontSize = '2.5rem';
+            celebration.style.pointerEvents = 'none';
+            celebration.style.zIndex = '1000';
+            celebration.style.animation = 'theme-celebration 2s ease-out forwards';
+            
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => celebration.remove(), 2000);
+        }, i * 150);
+    }
+}
+
     if (Math.random() < 0.1 && !isGolden) { // 10% chance
         setTimeout(() => spawnGoldenDancer(), 2000);
     }
@@ -454,6 +535,7 @@ function resetGame() {
     lives = 3;
     currentLevel = 1;
     levelTimeLimit = 60;
+    currentTheme = 'default';
     activePowerUps.clear();
     powerUpTimers.forEach(timer => clearTimeout(timer));
     powerUpTimers.clear();
@@ -467,6 +549,9 @@ function resetGame() {
         clearInterval(levelTimer);
         levelTimer = null;
     }
+    
+    // Reset theme to default
+    document.body.className = '';
     
     // Clear power-up display
     document.getElementById('powerUps').innerHTML = '';
