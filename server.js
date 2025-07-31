@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,8 +12,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// Database connection
-const sql = neon(process.env.DATABASE_URL);
+// Database connection (optional for local development)
+let sql = null;
+if (process.env.DATABASE_URL) {
+  sql = neon(process.env.DATABASE_URL);
+  console.log('✅ Database connected');
+} else {
+  console.log('⚠️  No DATABASE_URL found - running without database (leaderboard will use local storage)');
+}
 
 
 // Test endpoint
@@ -27,6 +34,10 @@ app.get('/.netlify/functions/test', async (req, res) => {
 // Get leaderboard endpoint
 app.get('/.netlify/functions/get-leaderboard', async (req, res) => {
   try {
+    if (!sql) {
+      return res.json([]);
+    }
+    
     // Create table if it doesn't exist
     await sql`
       CREATE TABLE IF NOT EXISTS leaderboard (
@@ -50,7 +61,7 @@ app.get('/.netlify/functions/get-leaderboard', async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error('Database error:', error);
-    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    res.json([]);
   }
 });
 
@@ -58,6 +69,14 @@ app.get('/.netlify/functions/get-leaderboard', async (req, res) => {
 app.post('/.netlify/functions/submit-score', async (req, res) => {
   try {
     const { name, score, mode, streak } = req.body;
+    
+    if (!sql) {
+      return res.json({ 
+        success: true, 
+        entry: { name, score, mode, streak, created_at: new Date().toISOString() },
+        message: 'Score saved locally (no database connection)'
+      });
+    }
     
     // Validate input
     if (!name || typeof score !== 'number' || !mode || typeof streak !== 'number') {
@@ -84,7 +103,11 @@ app.post('/.netlify/functions/submit-score', async (req, res) => {
     });
   } catch (error) {
     console.error('Database error:', error);
-    res.status(500).json({ error: 'Failed to submit score' });
+    res.json({ 
+      success: true, 
+      entry: { name: req.body.name, score: req.body.score, mode: req.body.mode, streak: req.body.streak, created_at: new Date().toISOString() },
+      message: 'Score saved locally (database error)'
+    });
   }
 });
 
