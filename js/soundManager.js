@@ -59,7 +59,7 @@ export class SoundManager {
     // Special sound for golden dancer
     playGoldenSuccess() {
         // Magical ascending arpeggio
-        const notes =; // C5, E5, G5, C6
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
         notes.forEach((freq, i) => {
             setTimeout(() => this.playTone(freq, 0.3, 'triangle', 0.15), i * 80);
         });
@@ -75,7 +75,7 @@ export class SoundManager {
     // Game over sound
     playGameOver() {
         // Sad descending sequence
-        const notes =; // G4, F4, Eb4, C4
+        const notes = [391.99, 349.23, 311.13, 261.63]; // G4, F4, Eb4, C4
         notes.forEach((freq, i) => {
             setTimeout(() => this.playTone(freq, 0.4, 'triangle', 0.2), i * 200);
         });
