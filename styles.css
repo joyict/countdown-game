@@ -98,6 +98,26 @@ body.theme-matrix::before {
     100% { transform: translateY(-100px); }
 }
 
+/* Theme: Cyberpunk Alley (Score 700+) */
+body.theme-cyberpunk {
+    background: 
+        radial-gradient(circle at 10% 90%, #ff0080 0%, transparent 40%),
+        radial-gradient(circle at 90% 10%, #00ffff 0%, transparent 40%),
+        radial-gradient(circle at 30% 30%, #8a2be2 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, #ff4500 0%, transparent 40%),
+        linear-gradient(135deg, #0a0a0a 0%, #1a0033 25%, #000033 50%, #330066 75%, #0a0a0a 100%);
+}
+
+body.theme-cyberpunk::before {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="cyberpunk-rain" x="0" y="0" width="8" height="20" patternUnits="userSpaceOnUse"><rect x="1" y="0" width="1" height="8" fill="rgba(0,255,255,0.6)"/><rect x="4" y="5" width="1" height="6" fill="rgba(255,0,128,0.4)"/><rect x="6" y="2" width="1" height="10" fill="rgba(138,43,226,0.5)"/><rect x="2" y="8" width="1" height="4" fill="rgba(255,69,0,0.3)"/></pattern></defs><rect width="100" height="100" fill="url(%23cyberpunk-rain)"/></svg>');
+    animation: cyberpunk-rain 3s infinite linear;
+}
+
+@keyframes cyberpunk-rain {
+    0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+    100% { transform: translateY(-120px) translateX(-20px); opacity: 0.4; }
+}
+
 /* Theme-specific particle colors */
 body.theme-neon .particle {
     background: rgba(0, 255, 255, 0.8);
@@ -119,6 +139,11 @@ body.theme-matrix .particle {
     box-shadow: 0 0 6px rgba(0, 255, 65, 0.6);
 }
 
+body.theme-cyberpunk .particle {
+    background: rgba(255, 0, 128, 0.8);
+    box-shadow: 0 0 8px rgba(255, 0, 128, 0.7);
+}
+
 /* Theme-specific energy bar colors */
 body.theme-neon .bar {
     background: linear-gradient(to top, #ff0080, #00ffff);
@@ -136,6 +161,9 @@ body.theme-matrix .bar {
     background: linear-gradient(to top, #008f11, #00ff41);
 }
 
+body.theme-cyberpunk .bar {
+    background: linear-gradient(to top, #ff0080, #00ffff, #8a2be2);
+}
 body::before {
     content: '';
     position: fixed;

@@ -93,7 +93,8 @@ const themes = [
     { name: 'neon', minScore: 50, displayName: 'Neon City' },
     { name: 'cosmic', minScore: 150, displayName: 'Cosmic Void' },
     { name: 'retro', minScore: 300, displayName: 'Retro Grid' },
-    { name: 'matrix', minScore: 500, displayName: 'Matrix Code' }
+    { name: 'matrix', minScore: 500, displayName: 'Matrix Code' },
+    { name: 'cyberpunk', minScore: 700, displayName: 'Cyberpunk Alley' }
 ];
 
 // Leaderboard
