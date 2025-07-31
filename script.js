@@ -1279,9 +1279,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, { once: true });
     
     // Handle Enter key in name input
-    document.getElementById('playerName').addEventListener('keypress', (e) => {
+    document.getElementById('startScreenPlayerName').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            submitScore();
+            submitScoreFromStart();
         }
     });
 });

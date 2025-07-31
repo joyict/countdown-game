@@ -940,6 +940,135 @@ body::before {
     font-size: 0.9rem;
 }
 
+/* High Score Section on Start Screen */
+.highscore-section {
+    margin: 2rem 0;
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+.highscore-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.highscore-card h2 {
+    color: #ffd700;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.final-score {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.name-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.name-input-group input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.name-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.submit-btn {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: #1a1a2e;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+}
+
+.skip-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.skip-btn {
+    background: none;
+    border: none;
+    color: #ff006e;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.skip-btn:hover {
+    color: #ff4081;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Leaderboard Modal */
+.leaderboard-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboard-content {
+    background: linear-gradient(145deg, rgba(26, 0, 51, 0.95), rgba(15, 15, 35, 0.95));
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: white;
+}
+
 /* Score Modal Styles */
 .score-content h2 {
     text-align: center;
