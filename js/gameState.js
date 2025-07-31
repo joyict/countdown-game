@@ -120,6 +120,3 @@ export function resetGameState() {
     // Reset mode buttons
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('normalMode').classList.add('active');
-}
-
-export { gameState }
