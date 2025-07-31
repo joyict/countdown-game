@@ -1188,7 +1188,7 @@ function checkHighScore() {
     const minScoreForLeaderboard = leaderboard.length < 10 ? 0 : leaderboard[9].score;
     
     if (score > minScoreForLeaderboard) {
-        document.getElementById('finalScore').textContent = score;
+        document.getElementById('startScreenScore').textContent = score;
         document.getElementById('scoreModal').style.display = 'flex';
         document.getElementById('playerName').focus();
     }
