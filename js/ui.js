@@ -1,9 +1,7 @@
 // js/ui.js
 import { VIBE_MESSAGES } from './constants.js';
-import { SoundManager } from './soundManager.js';
+import { soundManager } from './soundManager.js';
 import { gameState } from './gameState.js';
-
-const soundManager = new SoundManager();
 
 export function rotateVibeMessage() {
     const vibeElement = document.getElementById('vibeMessage');

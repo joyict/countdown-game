@@ -1,14 +1,12 @@
 // js/gameLogic.js
 import { gameState } from './gameState.js';
-import { SoundManager } from './soundManager.js';
+import { soundManager } from './soundManager.js';
 import { checkThemeChange } from './themes.js';
 import { checkAchievements } from './achievements.js';
 import { updateVibeMessage, createCelebration, showPowerUp, removePowerUp } from './ui.js';
 import { changeMovementPattern } from './movement.js';
 import { spawnEvilGuy } from './evilGuy.js';
 import { checkHighScoreDisplay } from './startScreen.js';
-
-const soundManager = new SoundManager();
 
 export function catchDancer(event) {
     if (!gameState.gameActive) return;

@@ -1,14 +1,11 @@
 // js/game.js
 import { gameState, resetGameState } from './gameState.js';
-import { SoundManager, loadSoundPreference } from './soundManager.js';
+import { soundManager, loadSoundPreference } from './soundManager.js';
 import { rotateVibeMessage, createParticle, createSparkle } from './ui.js';
 import { initEventHandlers } from './eventHandlers.js';
 import { loadLeaderboard, updateLeaderboardDisplay } from './leaderboard.js';
 import { changeMovementPattern } from './movement.js';
 import { startLevelTimer, startRushTimer } from './gameLogic.js';
-
-// Initialize sound manager
-const soundManager = new SoundManager();
 
 export function startGame() {
     if (gameState.gameStarted && gameState.gameActive) return;

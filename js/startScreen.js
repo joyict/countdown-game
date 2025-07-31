@@ -1,10 +1,7 @@
 // js/startScreen.js
 import { gameState, resetGameState } from './gameState.js';
 import { loadLeaderboard, updateLeaderboardDisplay } from './leaderboard.js';
-import { SoundManager } from './soundManager.js'; // Import SoundManager
 import { playSound } from './soundManager.js'; // Import playSound directly
-
-const soundManager = new SoundManager(); // Instantiate SoundManager
 
 export function showStartScreen() {
     gameState.gameStarted = false;

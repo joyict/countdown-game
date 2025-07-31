@@ -2,9 +2,7 @@
 import { gameState } from './gameState.js';
 import { API_BASE } from './constants.js';
 import { showStartScreen } from './startScreen.js';
-import { SoundManager } from './soundManager.js';
-
-const soundManager = new SoundManager();
+import { soundManager } from './soundManager.js';
 
 let leaderboard = [];
 

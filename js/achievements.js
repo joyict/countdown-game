@@ -1,8 +1,6 @@
 // js/achievements.js
 import { gameState } from './gameState.js';
-import { SoundManager } from './soundManager.js';
-
-const soundManager = new SoundManager();
+import { soundManager } from './soundManager.js';
 
 export function checkAchievements() {
     const newAchievements = [];

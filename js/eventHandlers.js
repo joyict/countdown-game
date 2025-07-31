@@ -4,10 +4,7 @@ import { catchDancer, setGameMode, resetGame } from './gameLogic.js';
 import { catchEvilGuy, cleanupEvilGuyClones } from './evilGuy.js';
 import { submitScoreFromStart, skipHighScore, showStartScreen } from './startScreen.js';
 import { toggleLeaderboard } from './leaderboard.js';
-import { SoundManager } from './soundManager.js';
-
-// Initialize sound manager
-const soundManager = new SoundManager();
+import { soundManager } from './soundManager.js';
 
 export function initEventHandlers() {
     // Make functions globally available for HTML onclick attributes

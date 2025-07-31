@@ -116,15 +116,17 @@ export class SoundManager {
     }
 }
 
+// Create and export a single instance
+export const soundManager = new SoundManager();
+
 // Load sound preference
 export function loadSoundPreference() {
-    const soundManagerInstance = new SoundManager(); // Create a temporary instance to access 'enabled'
     const savedSoundEnabled = localStorage.getItem('soundEnabled');
     if (savedSoundEnabled !== null) {
-        soundManagerInstance.enabled = savedSoundEnabled === 'true';
+        soundManager.enabled = savedSoundEnabled === 'true';
         const soundBtn = document.getElementById('sound-btn');
 
-        if (!soundManagerInstance.enabled) {
+        if (!soundManager.enabled) {
             soundBtn.textContent = '🔇 Sound';
             soundBtn.classList.add('muted');
         }
@@ -133,6 +135,5 @@ export function loadSoundPreference() {
 
 // Export a single playSound function for convenience in other modules
 export function playSound(frequency, duration, type = 'sine', volume = 0.3) {
-    const sm = new SoundManager(); // Create a new instance or get a global one
-    sm.playTone(frequency, duration, type, volume);
+    soundManager.playTone(frequency, duration, type, volume);
 }

@@ -1,12 +1,10 @@
 // js/evilGuy.js
 import { gameState } from './gameState.js';
-import { SoundManager } from './soundManager.js';
+import { soundManager } from './soundManager.js';
 import { createNegativeEffect } from './ui.js';
 import { endGame, startLevelTimer, startRushTimer } from './gameLogic.js'; // Import necessary game logic functions
 import { changeMovementPattern, startChasingCursor, startTemporaryInvisibility } from './movement.js';
 import { MOVEMENT_PATTERNS } from './constants.js';
-
-const soundManager = new SoundManager();
 
 let evilGuyClones = [];
 
