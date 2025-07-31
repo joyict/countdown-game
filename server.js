@@ -14,6 +14,7 @@ app.use(express.static('.'));
 // Database connection
 const sql = neon(process.env.DATABASE_URL);
 
+
 // Test endpoint
 app.get('/.netlify/functions/test', async (req, res) => {
   res.json({ 
