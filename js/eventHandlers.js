@@ -1,6 +1,7 @@
 // js/eventHandlers.js
 import { gameState } from './gameState.js';
-import { catchDancer, setGameMode, resetGame } from './gameLogic.js';
+import { catchDancer, setGameMode } from './gameLogic.js';
+import { resetGame } from './game.js';
 import { catchEvilGuy, cleanupEvilGuyClones } from './evilGuy.js';
 import { submitScoreFromStart, skipHighScore, showStartScreen } from './startScreen.js';
 import { toggleLeaderboard } from './leaderboard.js';
