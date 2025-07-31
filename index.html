@@ -69,6 +69,20 @@
                     <div class="start-content">
                         <h2>🎮 Ready to Play?</h2>
                         <p>Click any character to start the game!</p>
+                        
+                        <!-- High Score Input Section (hidden by default) -->
+                        <div class="highscore-section" id="highscoreSection" style="display: none;">
+                            <div class="highscore-card">
+                                <h2>🏆 New High Score! 🏆</h2>
+                                <p class="final-score">Score: <span id="startScreenScore">0</span></p>
+                                <div class="name-input-group">
+                                    <input type="text" id="startScreenPlayerName" placeholder="Enter your name..." maxlength="20">
+                                    <button onclick="submitScoreFromStart()" class="submit-btn">Save Score</button>
+                                </div>
+                                <p class="skip-text">or <button onclick="skipHighScore()" class="skip-btn">skip and play again</button></p>
+                            </div>
+                        </div>
+                        
                         <div class="start-characters">
                             <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
                                 <img src="dancing-man.svg" alt="Dancing Man" class="start-dancing-svg" />
@@ -105,18 +119,6 @@
                     </div>
                 </div>
                 
-                <!-- Score Submission Modal -->
-                <div class="score-modal" id="scoreModal">
-                    <div class="score-content">
-                        <h2>🎉 New High Score!</h2>
-                        <p>Score: <span id="finalScore"></span></p>
-                        <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
-                        <div class="score-buttons">
-                            <button onclick="submitScore()">Submit Score</button>
-                            <button onclick="closeScoreModal()">Skip</button>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="particles" id="particles"></div>
             <div class="dancing-man" id="dancingMan" onclick="catchDancer(event)" ontouchstart="catchDancer(event)">
