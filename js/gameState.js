@@ -118,3 +118,5 @@ export function updateSpeed(newSpeed) {
     gameState.speedMultiplier = newSpeed;
     document.getElementById('speed').textContent = `Speed: ${gameState.speedMultiplier.toFixed(1)}x`;
 }
+
+export { gameState }
