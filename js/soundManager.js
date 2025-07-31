@@ -1,4 +1,6 @@
-// Sound System
+// js/soundManager.js
+import { gameState } from './gameState.js';
+
 export class SoundManager {
     constructor() {
         this.audioContext = null;
@@ -57,7 +59,7 @@ export class SoundManager {
     // Special sound for golden dancer
     playGoldenSuccess() {
         // Magical ascending arpeggio
-        const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+        const notes =; // C5, E5, G5, C6
         notes.forEach((freq, i) => {
             setTimeout(() => this.playTone(freq, 0.3, 'triangle', 0.15), i * 80);
         });
@@ -73,7 +75,7 @@ export class SoundManager {
     // Game over sound
     playGameOver() {
         // Sad descending sequence
-        const notes = [392, 349, 311, 262]; // G4, F4, Eb4, C4
+        const notes =; // G4, F4, Eb4, C4
         notes.forEach((freq, i) => {
             setTimeout(() => this.playTone(freq, 0.4, 'triangle', 0.2), i * 200);
         });
@@ -94,56 +96,43 @@ export class SoundManager {
         setTimeout(() => this.playTone(784, 0.2, 'triangle', 0.2), 200); // G5
         setTimeout(() => this.playTone(1047, 0.4, 'triangle', 0.25), 300); // C6
     }
-}
 
-// Legacy sound function for backward compatibility
-export function playSound(frequency, duration, type = 'sine') {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    if (!audioContext) return;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.type = type;
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
-}
+    toggleSound() {
+        this.enabled = !this.enabled;
+        const soundBtn = document.getElementById('sound-btn');
 
-export function toggleSound(soundManager) {
-    soundManager.enabled = !soundManager.enabled;
-    const soundBtn = document.getElementById('sound-btn');
-    
-    if (soundManager.enabled) {
-        soundBtn.textContent = '🔊 Sound';
-        soundBtn.classList.remove('muted');
-        // Play a test sound
-        soundManager.playSuccess();
-    } else {
-        soundBtn.textContent = '🔇 Sound';
-        soundBtn.classList.add('muted');
+        if (this.enabled) {
+            soundBtn.textContent = '🔊 Sound';
+            soundBtn.classList.remove('muted');
+            // Play a test sound
+            this.playSuccess();
+        } else {
+            soundBtn.textContent = '🔇 Sound';
+            soundBtn.classList.add('muted');
+        }
+
+        // Save sound preference
+        localStorage.setItem('soundEnabled', this.enabled);
     }
-    
-    // Save sound preference
-    localStorage.setItem('soundEnabled', soundManager.enabled);
 }
 
-export function loadSoundPreference(soundManager) {
+// Load sound preference
+export function loadSoundPreference() {
+    const soundManagerInstance = new SoundManager(); // Create a temporary instance to access 'enabled'
     const savedSoundEnabled = localStorage.getItem('soundEnabled');
     if (savedSoundEnabled !== null) {
-        soundManager.enabled = savedSoundEnabled === 'true';
+        soundManagerInstance.enabled = savedSoundEnabled === 'true';
         const soundBtn = document.getElementById('sound-btn');
-        
-        if (!soundManager.enabled) {
+
+        if (!soundManagerInstance.enabled) {
             soundBtn.textContent = '🔇 Sound';
             soundBtn.classList.add('muted');
         }
     }
+}
+
+// Export a single playSound function for convenience in other modules
+export function playSound(frequency, duration, type = 'sine', volume = 0.3) {
+    const sm = new SoundManager(); // Create a new instance or get a global one
+    sm.playTone(frequency, duration, type, volume);
 }

@@ -1,3 +1,4 @@
+// js/constants.js
 // Game constants and configuration
 export const VIBE_MESSAGES = [
     "Ready to test your reflexes? 🔥",
@@ -14,7 +15,7 @@ export const VIBE_MESSAGES = [
 
 export const MOVEMENT_PATTERNS = [
     'dance-across',
-    'dance-diagonal', 
+    'dance-diagonal',
     'dance-wave',
     'dance-zigzag',
     'dance-top',

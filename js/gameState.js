@@ -1,41 +1,32 @@
-// Game state management
+// js/gameState.js
+import { MOVEMENT_PATTERNS } from './constants.js';
+import { cleanupEvilGuyClones } from './evilGuy.js';
+
 export let gameState = {
     score: 0,
     streak: 0,
     maxStreak: 0,
-    gameActive: true,
+    gameActive: false,
     gameStarted: false,
-    missedClicks: 0,
     speedMultiplier: 1,
     achievements: new Set(),
-    
-    // Game modes
     currentGameMode: 'normal',
     lives: 3,
-    timeLeft: 30,
+    timeLeft: 30, // For rush mode
     rushTimer: null,
     chaosCount: 1,
     levelTimeLimit: 60,
     levelTimer: null,
     currentLevel: 1,
-    
-    // Power-ups
+    currentTheme: 'default',
     activePowerUps: new Set(),
     powerUpTimers: new Map(),
-    
-    // Dynamic backgrounds
-    currentTheme: 'default',
-    
-    // Movement patterns
     currentPatternIndex: 0,
     teleportMode: false,
     chasingMode: false,
     invisibilityTimer: null,
-    evilGuyClones: [],
     cursorPosition: { x: 0, y: 0 },
-    
-    // Leaderboard
-    leaderboard: []
+    currentVibeIndex: 0, // For vibe messages
 };
 
 export function resetGameState() {
@@ -52,11 +43,43 @@ export function resetGameState() {
         clearTimeout(gameState.invisibilityTimer);
         gameState.invisibilityTimer = null;
     }
-    
+
     // Clear all power-up timers
     gameState.powerUpTimers.forEach(timer => clearTimeout(timer));
     gameState.powerUpTimers.clear();
-    
+
+    // Clean up clones and advanced patterns
+    cleanupEvilGuyClones();
+
+    // Reset character states
+    const dancer = document.getElementById('dancingMan');
+    const evilGuy = document.getElementById('evilGuy');
+
+    // Remove all special classes
+    dancer.classList.remove('chasing-cursor', 'temporarily-invisible', 'caught', 'teleport-out', 'teleport-in', 'golden-dancer');
+    evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
+
+    // Reset positions and animations
+    dancer.style.animation = 'none';
+    evilGuy.style.animation = 'none';
+    dancer.style.left = '-100px';
+    dancer.style.bottom = '-20px';
+    evilGuy.style.left = '-100px';
+    evilGuy.style.bottom = '-20px';
+    dancer.style.transform = '';
+    evilGuy.style.transform = '';
+
+    // Reset visibility
+    dancer.style.display = 'block';
+    evilGuy.style.display = 'none';
+
+    // Reset dancing man image to normal
+    const dancerImg = dancer.querySelector('.dancing-svg');
+    if (dancerImg.src.includes('golden-dancer.png')) {
+        dancerImg.src = 'dancing-man.svg';
+        dancerImg.style.background = '';
+    }
+
     // Reset game variables
     gameState.score = 0;
     gameState.streak = 0;
@@ -68,23 +91,20 @@ export function resetGameState() {
     gameState.currentTheme = 'default';
     gameState.chasingMode = false;
     gameState.teleportMode = false;
-    
+    gameState.currentGameMode = 'normal'; // Reset game mode to normal
+    gameState.currentPatternIndex = 0; // Reset movement pattern index
+    gameState.currentVibeIndex = 0; // Reset vibe message index
+
     // Clear power-ups
     gameState.activePowerUps.clear();
-    
+
     // Reset theme to default
     document.body.className = '';
-    
+
     // Clear displays
     document.getElementById('powerUps').innerHTML = '';
     document.getElementById('achievements').innerHTML = '';
-    
-    // Hide high score section
-    const highscoreSection = document.getElementById('highscoreSection');
-    if (highscoreSection) {
-        highscoreSection.style.display = 'none';
-    }
-    
+
     // Update UI displays
     document.getElementById('score').textContent = 'Score: 0';
     document.getElementById('streak').textContent = 'Streak: 0';
@@ -92,29 +112,12 @@ export function resetGameState() {
     document.getElementById('lives').textContent = 'Lives: 3';
     document.getElementById('levelTimer').textContent = 'Level Time: 60s';
     document.getElementById('levelTimer').style.color = '#ff006e';
-    
+
     // Reset mode-specific displays
     document.getElementById('timer').style.display = 'none';
     document.getElementById('levelTimer').style.display = 'inline-block';
-}
 
-export function updateScore(points) {
-    gameState.score += points;
-    document.getElementById('score').textContent = `Score: ${gameState.score}`;
-}
-
-export function updateStreak(newStreak) {
-    gameState.streak = newStreak;
-    gameState.maxStreak = Math.max(gameState.maxStreak, gameState.streak);
-    document.getElementById('streak').textContent = `Streak: ${gameState.streak}`;
-}
-
-export function updateLives(newLives) {
-    gameState.lives = newLives;
-    document.getElementById('lives').textContent = `Lives: ${gameState.lives}`;
-}
-
-export function updateSpeed(newSpeed) {
-    gameState.speedMultiplier = newSpeed;
-    document.getElementById('speed').textContent = `Speed: ${gameState.speedMultiplier.toFixed(1)}x`;
+    // Reset mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('normalMode').classList.add('active');
 }

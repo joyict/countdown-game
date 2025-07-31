@@ -13,7 +13,7 @@ export function checkThemeChange() {
             break;
         }
     }
-    
+
     // Change theme if different from current
     if (newTheme !== gameState.currentTheme) {
         changeTheme(newTheme);
@@ -22,31 +22,31 @@ export function checkThemeChange() {
 
 export function changeTheme(newTheme) {
     const body = document.body;
-    
+
     // Remove current theme class
     if (gameState.currentTheme !== 'default') {
         body.classList.remove(`theme-${gameState.currentTheme}`);
     }
-    
+
     // Add new theme class
     if (newTheme !== 'default') {
         body.classList.add(`theme-${newTheme}`);
     }
-    
+
     gameState.currentTheme = newTheme;
-    
+
     // Find theme display name
     const themeData = THEMES.find(t => t.name === newTheme);
     const themeName = themeData ? themeData.displayName : 'Deep Space';
-    
+
     // Show theme change message
     if (newTheme !== 'default') {
         document.getElementById('vibeMessage').textContent = `🌟 Theme Unlocked: ${themeName}! 🌟`;
-        
+
         // Play theme change sound
         playSound(1000, 0.3, 'triangle');
         setTimeout(() => playSound(1200, 0.2, 'sine'), 200);
-        
+
         // Create theme change celebration
         createThemeCelebration();
     }

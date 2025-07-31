@@ -1,29 +1,29 @@
-// Core game logic
-import { gameState, updateScore, updateStreak, updateLives, updateSpeed } from './gameState.js';
-import { MOVEMENT_PATTERNS, POWER_UPS } from './constants.js';
-import { playSound } from './soundManager.js';
-import { createCelebration, createNegativeEffect, updateVibeMessage } from './ui.js';
+// js/gameLogic.js
+import { gameState } from './gameState.js';
+import { SoundManager } from './soundManager.js';
 import { checkThemeChange } from './themes.js';
 import { checkAchievements } from './achievements.js';
+import { updateVibeMessage, createCelebration, showPowerUp, removePowerUp } from './ui.js';
+import { changeMovementPattern } from './movement.js';
+import { spawnEvilGuy } from './evilGuy.js';
+import { checkHighScoreDisplay } from './startScreen.js';
 
-export function catchDancer(event, soundManager) {
+const soundManager = new SoundManager();
+
+export function catchDancer(event) {
     if (!gameState.gameActive) return;
-    
+
     // Prevent event bubbling to avoid triggering miss detection
     event.stopPropagation();
-    
+
     // Play catch sound
-    if (soundManager) {
-        soundManager.playSuccess();
-    } else {
-        playSound(800, 0.1, 'square');
-    }
-    
+    soundManager.playSuccess();
+
     // Check if it's a golden dancer (power-up)
     const dancer = document.getElementById('dancingMan');
     const dancerImg = dancer.querySelector('.dancing-svg');
     const isGolden = dancerImg.src.includes('golden-dancer.png');
-    
+
     if (isGolden) {
         activatePowerUp();
         // Revert back to normal dancing man
@@ -31,60 +31,65 @@ export function catchDancer(event, soundManager) {
         dancerImg.style.background = '';
         dancer.classList.remove('golden-dancer');
     }
-    
+
     // Calculate score with power-up multipliers
     let points = 1;
     if (gameState.activePowerUps.has('double')) points *= 2;
-    if (gameState.activePowerUps.has('triple')) points *= 3;
-    
-    updateScore(points);
-    updateStreak(gameState.streak + 1);
-    
+    if (gameState.activePowerUps.has('triple')) points *= 3; // Assuming 'triple' is a possible power-up
+
+    gameState.score += points;
+    gameState.streak++;
+    gameState.maxStreak = Math.max(gameState.maxStreak, gameState.streak);
+
+    // Update displays
+    document.getElementById('score').textContent = `Score: ${gameState.score}`;
+    document.getElementById('streak').textContent = `Streak: ${gameState.streak}`;
+
     // Check for theme changes
     checkThemeChange();
-    
+
     // Speed up the dancer (unless slow motion is active)
     if (!gameState.activePowerUps.has('slow')) {
         gameState.speedMultiplier = Math.min(1 + (gameState.score * 0.05), 3); // Max 3x speed
     }
-    
+
     const baseDuration = 8;
     let newDuration = Math.max(baseDuration / gameState.speedMultiplier, 2); // Minimum 2 seconds
-    
+
     if (gameState.activePowerUps.has('slow')) {
         newDuration *= 2; // Slow motion effect
     }
-    
+
     // Change movement pattern randomly
     changeMovementPattern();
-    
+
     dancer.style.animationDuration = newDuration + 's';
-    updateSpeed(gameState.speedMultiplier);
-    
+    document.getElementById('speed').textContent = `Speed: ${gameState.speedMultiplier.toFixed(1)}x`;
+
     // Screen shake for high streaks
     if (gameState.streak >= 10 && gameState.streak % 5 === 0) {
         document.body.classList.add('screen-shake');
         setTimeout(() => document.body.classList.remove('screen-shake'), 500);
     }
-    
+
     // Check for achievements
     checkAchievements();
-    
+
     // Add catch animation
     dancer.classList.add('caught');
     setTimeout(() => dancer.classList.remove('caught'), 300);
-    
+
     // Create celebration effect
     createCelebration();
-    
+
     // Update vibe message based on streak
-    updateVibeMessage(gameState.streak, gameState.score);
-    
+    updateVibeMessage();
+
     // Spawn golden dancer occasionally
     if (Math.random() < 0.1 && !isGolden) { // 10% chance
         setTimeout(() => spawnGoldenDancer(), 2000);
     }
-    
+
     // Chance to spawn evil guy on next appearance
     setTimeout(() => {
         if (gameState.gameActive && !spawnEvilGuy()) {
@@ -94,248 +99,163 @@ export function catchDancer(event, soundManager) {
     }, 1000);
 }
 
-export function catchEvilGuy(event, soundManager) {
-    if (!gameState.gameActive) return;
-    
-    event.stopPropagation();
-    
-    // Play evil sound
-    if (soundManager) {
-        soundManager.playError();
-    } else {
-        playSound(150, 0.5, 'sawtooth');
-    }
-    
-    // Lose a life
-    updateLives(gameState.lives - 1);
-    
-    // Reset streak
-    updateStreak(0);
-    
-    // Hide evil guy immediately
-    document.getElementById('evilGuy').style.display = 'none';
-    document.getElementById('dancingMan').style.display = 'block';
-    
-    // Create negative effect
-    createNegativeEffect();
-    
-    // Check if game over
-    if (gameState.lives <= 0) {
-        endGame();
-    } else {
-        document.getElementById('vibeMessage').textContent = `Evil guy caught you! Lives: ${gameState.lives} 😈`;
-    }
-}
-
 export function handleMiss() {
     // All modes now have lives system
-    updateLives(gameState.lives - 1);
-    playSound(200, 0.3, 'sawtooth'); // Miss sound
-    
+    gameState.lives--;
+    document.getElementById('lives').textContent = `Lives: ${gameState.lives}`;
+    soundManager.playError(); // Miss sound
+
     if (gameState.lives <= 0) {
+        gameState.gameActive = false;
+        // Stop all animations
+        const dancer = document.getElementById('dancingMan');
+        const evilGuy = document.getElementById('evilGuy');
+        dancer.style.animation = 'none';
+        evilGuy.style.animation = 'none';
+        dancer.style.display = 'none';
+        evilGuy.style.display = 'none';
+
+        // Clear any running timers
+        if (gameState.levelTimer) {
+            clearInterval(gameState.levelTimer);
+            gameState.levelTimer = null;
+        }
+        if (gameState.rushTimer) {
+            clearInterval(gameState.rushTimer);
+            gameState.rushTimer = null;
+        }
+
+        document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${gameState.score} 💀`;
         endGame();
         return;
     }
-    
+
     if (gameState.streak > 0) {
-        updateStreak(0);
+        gameState.streak = 0;
+        document.getElementById('streak').textContent = `Streak: ${gameState.streak}`;
         document.getElementById('vibeMessage').textContent = `Missed! Lives: ${gameState.lives} 💔`;
     }
 }
 
-function endGame() {
+export function setGameMode(mode) {
+    if (!gameState.gameActive && gameState.currentGameMode !== 'normal') return;
+
+    resetGame(); // Use the global resetGame from game.js
+    gameState.currentGameMode = mode;
+
+    // Update UI
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(mode + 'Mode').classList.add('active');
+
+    // Configure mode-specific settings
+    switch(mode) {
+        case 'survival':
+            document.getElementById('gameText').textContent = 'Survival Mode - Avoid the evil guy!';
+            break;
+        case 'rush':
+            gameState.timeLeft = 30;
+            document.getElementById('timer').style.display = 'inline-block';
+            document.getElementById('timer').textContent = `Time: ${gameState.timeLeft}s`;
+            document.getElementById('levelTimer').style.display = 'none';
+            document.getElementById('gameText').textContent = 'Rush Mode - 30 seconds!';
+            if (gameState.levelTimer) {
+                clearInterval(gameState.levelTimer);
+                gameState.levelTimer = null;
+            }
+            startRushTimer();
+            break;
+        case 'chaos':
+            gameState.chaosCount = 2;
+            document.getElementById('gameText').textContent = 'Chaos Mode - Watch out for traps!';
+            spawnChaosMode();
+            break;
+        default:
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('levelTimer').style.display = 'inline-block';
+            document.getElementById('gameText').textContent = 'Catch the dancing man, avoid the evil guy!';
+    }
+
+    document.getElementById('lives').style.display = 'inline-block';
+}
+
+export function startLevelTimer() {
+    if (gameState.currentGameMode === 'rush') return;
+
+    gameState.levelTimeLimit = Math.max(60 - (gameState.currentLevel * 5), 20);
+    let timeLeft = gameState.levelTimeLimit;
+
+    document.getElementById('levelTimer').textContent = `Level Time: ${timeLeft}s`;
+
+    gameState.levelTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('levelTimer').textContent = `Level Time: ${timeLeft}s`;
+
+        if (timeLeft <= 5) {
+            soundManager.playTone(800, 0.1, 'square');
+            document.getElementById('levelTimer').style.color = '#ff0000';
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(gameState.levelTimer);
+            gameState.lives--;
+            document.getElementById('lives').textContent = `Lives: ${gameState.lives}`;
+            document.getElementById('levelTimer').style.color = '#ff006e';
+
+            if (gameState.lives <= 0) {
+                handleMiss(); // This will call endGame()
+            } else {
+                gameState.currentLevel++;
+                document.getElementById('vibeMessage').textContent = `Time's up! Level ${gameState.currentLevel} - Lives: ${gameState.lives} ⏰`;
+                startLevelTimer();
+            }
+        }
+    }, 1000);
+}
+
+export function startRushTimer() {
+    gameState.rushTimer = setInterval(() => {
+        gameState.timeLeft--;
+        document.getElementById('timer').textContent = `Time: ${gameState.timeLeft}s`;
+
+        if (gameState.timeLeft <= 0) {
+            endRushMode();
+        } else if (gameState.timeLeft <= 5) {
+            soundManager.playTone(1000, 0.1, 'square');
+        }
+    }, 1000);
+}
+
+export function endGame() {
     gameState.gameActive = false;
-    // Stop all animations
-    const dancer = document.getElementById('dancingMan');
-    const evilGuy = document.getElementById('evilGuy');
-    dancer.style.animation = 'none';
-    evilGuy.style.animation = 'none';
-    dancer.style.display = 'none';
-    evilGuy.style.display = 'none';
-    
-    // Clear any running timers
-    if (gameState.levelTimer) {
-        clearInterval(gameState.levelTimer);
-        gameState.levelTimer = null;
-    }
-    if (gameState.rushTimer) {
-        clearInterval(gameState.rushTimer);
-        gameState.rushTimer = null;
-    }
-    
-    document.getElementById('vibeMessage').textContent = `Game Over! Final Score: ${gameState.score} 💀`;
-    
-    // Import and call checkHighScore
-    import('./leaderboard.js').then(({ checkHighScore }) => {
-        checkHighScore();
-    });
-    
+    gameState.gameStarted = false; // Allow new games to start
+
     // Show start screen after a delay
     setTimeout(() => {
-        import('./game.js').then(({ showStartScreen }) => {
-            showStartScreen();
-        });
+        checkHighScoreDisplay(); // Check and display high score input
     }, 3000);
 }
 
-export function changeMovementPattern() {
-    const dancer = document.getElementById('dancingMan');
-    
-    // 25% chance for teleport mode, 15% for chasing mode, 10% for temporary invisibility
-    const randomValue = Math.random();
-    gameState.teleportMode = randomValue < 0.25;
-    gameState.chasingMode = !gameState.teleportMode && randomValue < 0.4;
-    const invisibilityMode = !gameState.teleportMode && !gameState.chasingMode && randomValue < 0.5;
-    
-    if (gameState.teleportMode) {
-        teleportDancer();
-        return;
-    }
-    
-    if (gameState.chasingMode) {
-        startChasingCursor(dancer);
-        return;
-    }
-    
-    if (invisibilityMode) {
-        startTemporaryInvisibility(dancer);
-        return;
-    }
-    
-    // Choose a random pattern (but not the same as current)
-    let newPatternIndex;
-    do {
-        newPatternIndex = Math.floor(Math.random() * MOVEMENT_PATTERNS.length);
-    } while (newPatternIndex === gameState.currentPatternIndex && MOVEMENT_PATTERNS.length > 1);
-    
-    gameState.currentPatternIndex = newPatternIndex;
-    const newPattern = MOVEMENT_PATTERNS[gameState.currentPatternIndex];
-    
-    // Reset animation to start the new pattern
-    dancer.style.animation = 'none';
-    dancer.offsetHeight; // Trigger reflow
-    dancer.style.animation = `${newPattern} ${dancer.style.animationDuration || '8s'} infinite linear`;
+function spawnChaosMode() {
+    // This would require more complex implementation with multiple dancers
+    // For now, just increase speed significantly
+    gameState.speedMultiplier = 2;
 }
 
-function teleportDancer() {
-    const dancer = document.getElementById('dancingMan');
-    
-    // Teleport out sound
-    playSound(1500, 0.2, 'sawtooth');
-    
-    // Puff out effect
-    dancer.classList.add('teleport-out');
-    
-    setTimeout(() => {
-        // Move to random position
-        const randomX = Math.random() * (window.innerWidth - 200);
-        const randomY = Math.random() * (window.innerHeight - 200) + 50;
-        
-        dancer.style.left = randomX + 'px';
-        dancer.style.bottom = randomY + 'px';
-        dancer.style.animation = 'none';
-        
-        // Teleport in sound
-        playSound(800, 0.2, 'triangle');
-        
-        // Puff in effect
-        dancer.classList.remove('teleport-out');
-        dancer.classList.add('teleport-in');
-        
-        setTimeout(() => {
-            dancer.classList.remove('teleport-in');
-            
-            // Start a new movement pattern from this position
-            const newPattern = MOVEMENT_PATTERNS[Math.floor(Math.random() * MOVEMENT_PATTERNS.length)];
-            dancer.style.animation = `${newPattern} ${dancer.style.animationDuration || '8s'} infinite linear`;
-            
-            // Reset position after animation completes
-            setTimeout(() => {
-                dancer.style.left = '-100px';
-                dancer.style.bottom = '-20px';
-            }, parseFloat(dancer.style.animationDuration || '8') * 1000);
-            
-        }, 300);
-    }, 300);
+export function endRushMode() {
+    clearInterval(gameState.rushTimer);
+    gameState.gameActive = false;
+    document.getElementById('vibeMessage').textContent = `Rush Mode Complete! Final Score: ${gameState.score} 🏁`;
+    soundManager.playGameOver();
+
+    checkHighScoreDisplay();
 }
 
-function startChasingCursor(element, isEvilGuy = false) {
-    element.classList.add('chasing-cursor');
-    element.style.animation = 'none';
-    
-    const chaseDuration = isEvilGuy ? 6000 : 8000;
-    const chaseSpeed = isEvilGuy ? 200 : 300;
-    
-    const chaseInterval = setInterval(() => {
-        if (!gameState.gameActive) {
-            clearInterval(chaseInterval);
-            return;
-        }
-        
-        const rect = element.getBoundingClientRect();
-        const targetX = gameState.cursorPosition.x - 40;
-        const targetY = window.innerHeight - gameState.cursorPosition.y - 40;
-        
-        const randomOffsetX = (Math.random() - 0.5) * 50;
-        const randomOffsetY = (Math.random() - 0.5) * 50;
-        
-        const finalX = Math.max(0, Math.min(window.innerWidth - 80, targetX + randomOffsetX));
-        const finalY = Math.max(0, Math.min(window.innerHeight - 80, targetY + randomOffsetY));
-        
-        element.style.left = finalX + 'px';
-        element.style.bottom = finalY + 'px';
-        
-    }, chaseSpeed);
-    
-    setTimeout(() => {
-        clearInterval(chaseInterval);
-        element.classList.remove('chasing-cursor');
-        
-        if (gameState.gameActive) {
-            const pattern = MOVEMENT_PATTERNS[Math.floor(Math.random() * MOVEMENT_PATTERNS.length)];
-            element.style.animation = `${pattern} ${8 / gameState.speedMultiplier}s infinite linear`;
-            
-            setTimeout(() => {
-                element.style.left = '-100px';
-                element.style.bottom = '-20px';
-            }, (8 / gameState.speedMultiplier) * 1000);
-        }
-    }, chaseDuration);
-    
-    playSound(600, 0.3, 'sawtooth');
-}
+export function activatePowerUp() {
+    const powerUps = ['slow', 'double', 'freeze', 'giant'];
+    const powerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
 
-function startTemporaryInvisibility(element) {
-    const totalDuration = 8000;
-    const invisiblePhases = [
-        { start: 2000, duration: 1500 },
-        { start: 5000, duration: 1000 },
-        { start: 6500, duration: 800 }
-    ];
-    
-    const pattern = MOVEMENT_PATTERNS[Math.floor(Math.random() * MOVEMENT_PATTERNS.length)];
-    element.style.animation = 'none';
-    element.offsetHeight;
-    element.style.animation = `${pattern} ${totalDuration / 1000}s infinite linear`;
-    
-    invisiblePhases.forEach(phase => {
-        setTimeout(() => {
-            element.classList.add('temporarily-invisible');
-            playSound(1200, 0.2, 'triangle');
-            
-            setTimeout(() => {
-                element.classList.remove('temporarily-invisible');
-                playSound(800, 0.2, 'sine');
-            }, phase.duration);
-        }, phase.start);
-    });
-}
+    soundManager.playTone(1200, 0.2, 'triangle'); // Power-up sound
 
-function activatePowerUp() {
-    const powerUp = POWER_UPS[Math.floor(Math.random() * POWER_UPS.length)];
-    
-    playSound(1200, 0.2, 'triangle');
-    
     switch(powerUp) {
         case 'slow':
             gameState.activePowerUps.add('slow');
@@ -376,60 +296,22 @@ function activatePowerUp() {
     }
 }
 
-function showPowerUp(text, duration) {
-    const powerUpEl = document.createElement('div');
-    powerUpEl.className = 'power-up';
-    powerUpEl.textContent = text;
-    powerUpEl.dataset.powerup = text;
-    document.getElementById('powerUps').appendChild(powerUpEl);
-}
-
-function removePowerUp(text) {
-    const powerUpEl = document.querySelector(`[data-powerup="${text}"]`);
-    if (powerUpEl) powerUpEl.remove();
-}
-
-function spawnGoldenDancer() {
+export function spawnGoldenDancer() {
     const dancer = document.getElementById('dancingMan');
     const dancerImg = dancer.querySelector('.dancing-svg');
-    
+
+    // Change to golden dancer image
     dancerImg.src = 'golden-dancer.png';
     dancerImg.style.background = 'transparent';
     dancer.classList.add('golden-dancer');
-    
+
+    // Remove golden effect after 5 seconds if not caught
     setTimeout(() => {
+        // Revert back to normal dancing man if still golden
         if (dancerImg.src.includes('golden-dancer.png')) {
             dancerImg.src = 'dancing-man.svg';
             dancerImg.style.background = '';
         }
         dancer.classList.remove('golden-dancer');
     }, 5000);
-}
-
-function spawnEvilGuy() {
-    if (Math.random() < 0.25) {
-        document.getElementById('dancingMan').style.display = 'none';
-        const evilGuy = document.getElementById('evilGuy');
-        evilGuy.style.display = 'block';
-        
-        const behaviorRandom = Math.random();
-        
-        if (behaviorRandom < 0.3) {
-            startChasingCursor(evilGuy, true);
-        } else {
-            const pattern = MOVEMENT_PATTERNS[Math.floor(Math.random() * MOVEMENT_PATTERNS.length)];
-            evilGuy.style.animation = 'none';
-            evilGuy.offsetHeight;
-            evilGuy.style.animation = `${pattern} ${8 / gameState.speedMultiplier}s infinite linear`;
-        }
-        
-        setTimeout(() => {
-            evilGuy.style.display = 'none';
-            evilGuy.classList.remove('chasing-cursor', 'temporarily-invisible');
-            document.getElementById('dancingMan').style.display = 'block';
-        }, (8 / gameState.speedMultiplier) * 1000);
-        
-        return true;
-    }
-    return false;
 }

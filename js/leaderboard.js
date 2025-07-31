@@ -1,25 +1,14 @@
-// Leaderboard system
+// js/leaderboard.js
 import { gameState } from './gameState.js';
 import { API_BASE } from './constants.js';
+import { showStartScreen } from './startScreen.js';
+import { SoundManager } from './soundManager.js';
 
-export function checkHighScore() {
-    // Show high score section if score is greater than 0
-    if (gameState.score > 0) {
-        // Show the high score section on start screen
-        document.getElementById('startScreenScore').textContent = gameState.score;
-        document.getElementById('highscoreSection').style.display = 'block';
-        
-        // Focus on the name input
-        const nameInput = document.getElementById('startScreenPlayerName');
-        if (nameInput) {
-            setTimeout(() => nameInput.focus(), 500);
-        }
-    }
-}
+const soundManager = new SoundManager();
 
-export async function submitScoreFromStart() {
-    const playerName = document.getElementById('startScreenPlayerName').value.trim() || 'Anonymous';
-    
+let leaderboard = [];
+
+export async function submitScore(playerName, score, mode, streak) {
     try {
         console.log('Submitting score to:', `${API_BASE}/submit-score`);
         const response = await fetch(`${API_BASE}/submit-score`, {
@@ -29,56 +18,50 @@ export async function submitScoreFromStart() {
             },
             body: JSON.stringify({
                 name: playerName,
-                score: gameState.score,
-                mode: gameState.currentGameMode,
-                streak: gameState.maxStreak
+                score: score,
+                mode: mode,
+                streak: streak
             })
         });
-        
+
         if (!response.ok) {
+            console.error('Submit response not OK:', response.status, response.statusText);
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
+
         const result = await response.json();
         console.log('Score submitted successfully:', result);
-        
-        // Hide high score section
-        document.getElementById('highscoreSection').style.display = 'none';
-        document.getElementById('startScreenPlayerName').value = '';
-        
-        await loadLeaderboard();
+
+        await loadLeaderboard(); // Refresh leaderboard
+
+        // Show success message
         document.getElementById('vibeMessage').textContent = `${playerName} added to leaderboard! 🏆`;
-        
+        soundManager.playSuccess(); // Play success sound for submission
+
     } catch (error) {
         console.error('Error submitting score:', error);
-        
+
         // Fallback to localStorage
+        console.log('Falling back to localStorage');
         const newEntry = {
             name: playerName,
-            score: gameState.score,
-            mode: gameState.currentGameMode,
-            streak: gameState.maxStreak,
+            score: score,
+            mode: mode,
+            streak: streak,
             created_at: new Date().toISOString()
         };
-        
+
         let localLeaderboard = JSON.parse(localStorage.getItem('dancingManLeaderboard')) || [];
         localLeaderboard.push(newEntry);
         localLeaderboard.sort((a, b) => b.score - a.score);
         localLeaderboard = localLeaderboard.slice(0, 10);
         localStorage.setItem('dancingManLeaderboard', JSON.stringify(localLeaderboard));
-        
-        document.getElementById('highscoreSection').style.display = 'none';
-        document.getElementById('startScreenPlayerName').value = '';
-        
-        await loadLeaderboard();
-        document.getElementById('vibeMessage').textContent = `${playerName} added to local leaderboard! 📱`;
-    }
-}
 
-export function skipHighScore() {
-    document.getElementById('highscoreSection').style.display = 'none';
-    document.getElementById('startScreenPlayerName').value = '';
-    document.getElementById('vibeMessage').textContent = "Ready for another round? 🎮";
+        await loadLeaderboard();
+
+        document.getElementById('vibeMessage').textContent = `${playerName} added to local leaderboard! 📱`;
+        soundManager.playSuccess(); // Play success sound for submission
+    }
 }
 
 export async function toggleLeaderboard() {
@@ -96,19 +79,20 @@ export async function loadLeaderboard() {
     try {
         console.log('Loading leaderboard from:', `${API_BASE}/get-leaderboard`);
         const response = await fetch(`${API_BASE}/get-leaderboard`);
-        
+
         if (!response.ok) {
+            console.error('Response not OK:', response.status, response.statusText);
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
+        }\n        const data = await response.json();
         console.log('Leaderboard loaded:', data);
-        gameState.leaderboard = data;
+        leaderboard = data;
     } catch (error) {
         console.error('Error loading leaderboard:', error);
+        console.log('Falling back to localStorage');
         // Fallback to localStorage if API fails
-        gameState.leaderboard = JSON.parse(localStorage.getItem('dancingManLeaderboard')) || [];
-        
+        leaderboard = JSON.parse(localStorage.getItem('dancingManLeaderboard')) || [];
+
+        // Show user that we're in offline mode
         if (document.getElementById('leaderboardModal').style.display === 'flex') {
             const list = document.getElementById('leaderboardList');
             list.insertAdjacentHTML('afterbegin', `
@@ -122,17 +106,17 @@ export async function loadLeaderboard() {
 
 export function updateLeaderboardDisplay() {
     const list = document.getElementById('leaderboardList');
-    
-    if (gameState.leaderboard.length === 0) {
+
+    if (leaderboard.length === 0) {
         list.innerHTML = '<div class="no-scores">No scores yet! Be the first! 🚀</div>';
         return;
     }
-    
-    list.innerHTML = gameState.leaderboard.map((entry, index) => {
+
+    list.innerHTML = leaderboard.map((entry, index) => {
         const date = new Date(entry.created_at || entry.date);
         const timeAgo = getTimeAgo(date);
         const isTopScore = index === 0;
-        
+
         return `
             <div class="leaderboard-entry ${isTopScore ? 'top-score' : ''}">
                 <div class="rank">${index + 1}</div>
@@ -154,7 +138,7 @@ function getTimeAgo(date) {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
-    
+
     if (diffMins < 1) return 'just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;

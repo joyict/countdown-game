@@ -1,9 +1,12 @@
-// Achievement system
+// js/achievements.js
 import { gameState } from './gameState.js';
+import { SoundManager } from './soundManager.js';
+
+const soundManager = new SoundManager();
 
 export function checkAchievements() {
     const newAchievements = [];
-    
+
     if (gameState.score === 1 && !gameState.achievements.has('first')) {
         gameState.achievements.add('first');
         newAchievements.push('🎯 First Catch!');
@@ -36,14 +39,16 @@ export function checkAchievements() {
         gameState.achievements.add('teleport');
         newAchievements.push('✨ Teleport Master!');
     }
-    
+
     // Display new achievements
     newAchievements.forEach(achievement => {
         const achievementEl = document.createElement('div');
         achievementEl.className = 'achievement';
         achievementEl.textContent = achievement;
         document.getElementById('achievements').appendChild(achievementEl);
-        
+
+        soundManager.playUnlock(); // Play achievement sound
+
         // Remove after 5 seconds
         setTimeout(() => {
             if (achievementEl.parentNode) {
