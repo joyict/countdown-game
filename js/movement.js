@@ -1,9 +1,7 @@
 // js/movement.js
 import { gameState } from './gameState.js';
 import { MOVEMENT_PATTERNS } from './constants.js';
-import { SoundManager } from './soundManager.js';
-
-const soundManager = new SoundManager();
+import { soundManager } from './soundManager.js';
 
 export function changeMovementPattern() {
     const dancer = document.getElementById('dancingMan');
