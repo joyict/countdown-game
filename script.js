@@ -370,6 +370,12 @@ function resetGameState() {
     document.getElementById('powerUps').innerHTML = '';
     document.getElementById('achievements').innerHTML = '';
     
+    // Hide high score section
+    const highscoreSection = document.getElementById('highscoreSection');
+    if (highscoreSection) {
+        highscoreSection.style.display = 'none';
+    }
+    
     // Update UI displays
     document.getElementById('score').textContent = 'Score: 0';
     document.getElementById('streak').textContent = 'Streak: 0';
@@ -1185,7 +1191,19 @@ document.addEventListener('touchstart', function(e) {
 
 // Leaderboard functions
 function checkHighScore() {
-    const minScoreForLeaderboard = leaderboard.length < 10 ? 0 : leaderboard[9].score;
+    // Show high score section if score is greater than 0
+    if (score > 0) {
+        // Show the high score section on start screen
+        document.getElementById('startScreenScore').textContent = score;
+        document.getElementById('highscoreSection').style.display = 'block';
+        
+        // Focus on the name input
+        const nameInput = document.getElementById('startScreenPlayerName');
+        if (nameInput) {
+            setTimeout(() => nameInput.focus(), 500);
+        }
+    }
+}
     
     if (score > minScoreForLeaderboard) {
         document.getElementById('startScreenScore').textContent = score;
