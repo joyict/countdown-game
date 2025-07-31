@@ -81,7 +81,8 @@ export async function loadLeaderboard() {
         if (!response.ok) {
             console.error('Response not OK:', response.status, response.statusText);
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }\n        const data = await response.json();
+        }
+        const data = await response.json();
         console.log('Leaderboard loaded:', data);
         leaderboard = data;
     } catch (error) {
