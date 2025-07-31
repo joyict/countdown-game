@@ -651,6 +651,18 @@ body::before {
     20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.control-btn.muted {
+    opacity: 0.5;
+}
+
+.control-btn.muted:hover {
+    opacity: 0.7;
+}
 
 @keyframes pulse-hint {
     0%, 100% { opacity: 0.8; }

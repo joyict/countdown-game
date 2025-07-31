@@ -1605,9 +1605,42 @@ function cleanupEvilGuyClones() {
     });
     evilGuyClones = [];
 }
+function toggleSound() {
+    soundManager.enabled = !soundManager.enabled;
+    const soundBtn = document.getElementById('sound-btn');
+    
+    if (soundManager.enabled) {
+        soundBtn.textContent = '🔊 Sound';
+        soundBtn.classList.remove('muted');
+        // Play a test sound
+        soundManager.playSuccess();
+    } else {
+        soundBtn.textContent = '🔇 Sound';
+        soundBtn.classList.add('muted');
+    }
+    
+    // Save sound preference
+    localStorage.setItem('soundEnabled', soundManager.enabled);
+}
+
+// Load sound preference
+function loadSoundPreference() {
+    const savedSoundEnabled = localStorage.getItem('soundEnabled');
+    if (savedSoundEnabled !== null) {
+        soundManager.enabled = savedSoundEnabled === 'true';
+        const soundBtn = document.getElementById('sound-btn');
+        
+        if (!soundManager.enabled) {
+            soundBtn.textContent = '🔇 Sound';
+            soundBtn.classList.add('muted');
+        }
+    }
+}
+
 
 // Update reset game to clean up advanced patterns
 function resetGame() {
+    loadSoundPreference();
     // Show start screen instead of auto-starting
     showStartScreen();
 }
