@@ -50,5 +50,7 @@ export function checkHighScoreDisplay() {
         playSound(1000, 0.3, 'triangle'); // Play a sound for new high score prompt
     } else {
         document.getElementById('highscoreSection').style.display = 'none';
+        // Still show the start screen even if score is 0
+        document.getElementById('startScreen').classList.remove('hidden');
     }
 }

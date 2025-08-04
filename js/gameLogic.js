@@ -227,9 +227,10 @@ export function endGame() {
     gameState.gameActive = false;
     gameState.gameStarted = false; // Allow new games to start
 
-    // Show start screen after a delay
+    // Show start screen with high score submission after a delay
     setTimeout(() => {
-        checkHighScoreDisplay(); // Check and display high score input
+        document.getElementById('startScreen').classList.remove('hidden');
+        checkHighScoreDisplay(); // This will show the high score form if score > 0
     }, 3000);
 }
 
