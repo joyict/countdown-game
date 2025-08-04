@@ -26,8 +26,10 @@ export function submitScoreFromStart() {
     }
 
     // Submit score to leaderboard (API or localStorage fallback)
-    import('./leaderboard.js').then(({ submitScore }) => {
-        submitScore(playerName, gameState.score, gameState.currentGameMode, gameState.maxStreak);
+    import('./leaderboard.js').then(async ({ submitScore, updateLeaderboardDisplay }) => {
+        await submitScore(playerName, gameState.score, gameState.currentGameMode, gameState.maxStreak);
+        // Update leaderboard display after successful submission
+        updateLeaderboardDisplay();
     });
 
     // Hide high score section

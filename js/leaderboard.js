@@ -35,6 +35,11 @@ export async function submitScore(playerName, score, mode, streak) {
         // Show success message
         document.getElementById('vibeMessage').textContent = `${playerName} added to leaderboard! 🏆`;
         soundManager.playSuccess(); // Play success sound for submission
+        
+        // Update leaderboard display if modal is open
+        if (document.getElementById('leaderboardModal').style.display === 'flex') {
+            updateLeaderboardDisplay();
+        }
 
     } catch (error) {
         console.error('Error submitting score:', error);
@@ -59,6 +64,11 @@ export async function submitScore(playerName, score, mode, streak) {
 
         document.getElementById('vibeMessage').textContent = `${playerName} added to local leaderboard! 📱`;
         soundManager.playSuccess(); // Play success sound for submission
+        
+        // Update leaderboard display if modal is open
+        if (document.getElementById('leaderboardModal').style.display === 'flex') {
+            updateLeaderboardDisplay();
+        }
     }
 }
 
