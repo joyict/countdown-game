@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon Results Countdown ✨</title>
+    <title>Dancing Man Catcher Game ✨</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title" data-text="⚡ Bolt.new Hackathon">⚡ Bolt.new Hackathon</h1>
-            <p class="subtitle">World's Largest Hackathon Results</p>
-            <div class="bolt-logo">
-                <span class="bolt-text">BOLT</span>
-                <span class="bolt-spark">⚡</span>
+            <h1 class="title" data-text="🕺 Dancing Man Catcher">🕺 Dancing Man Catcher</h1>
+            <p class="subtitle">The Ultimate Reflexes Challenge</p>
+            <div class="game-logo">
+                <span class="game-text">CATCH</span>
+                <span class="game-spark">🎯</span>
             </div>
             <div class="energy-bars">
                 <div class="bar"></div>
@@ -26,26 +26,21 @@
             </div>
         </div>
 
-        <div class="countdown-container">
-            <div class="countdown" id="countdown">
-                <div class="time-unit">
-                    <span class="number" id="hours">00</span>
-                    <span class="label">Hours</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="minutes">00</span>
-                    <span class="label">Minutes</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="seconds">00</span>
-                    <span class="label">Seconds</span>
+        <div class="game-intro">
+            <div class="intro-content">
+                <h2>🎮 How to Play</h2>
+                <div class="instructions">
+                    <div class="instruction">🎯 Click the dancing man as he moves across the screen</div>
+                    <div class="instruction">⚡ Build streaks for bonus points</div>
+                    <div class="instruction">🌟 Catch golden dancers for power-ups</div>
+                    <div class="instruction">😈 Avoid the evil guy - he'll cost you a life!</div>
                 </div>
             </div>
         </div>
 
         <div class="vibes-section">
             <div class="vibe-message" id="vibeMessage">
-                The anticipation is real! 🔥
+                Ready to test your reflexes? 🔥
             </div>
             <div class="game-section">
                 <div class="game-info">
@@ -55,7 +50,7 @@
                         <button class="mode-btn" id="rushMode" onclick="setGameMode('rush')">Rush</button>
                         <button class="mode-btn" id="chaosMode" onclick="setGameMode('chaos')">Chaos</button>
                     </div>
-                    <span class="game-text" id="gameText">Click the dancing man!</span>
+                    <span class="game-text" id="gameText">Catch the dancing man!</span>
                     <div class="game-stats">
                         <span class="score" id="score">Score: 0</span>
                         <span class="streak" id="streak">Streak: 0</span>
@@ -69,6 +64,45 @@
                     <button class="leaderboard-btn" id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Leaderboard</button>
                 </div>
                 
+                <!-- Start Screen -->
+                <div class="start-screen" id="startScreen">
+                    <div class="start-content">
+                        <h2>🎮 Ready to Play?</h2>
+                        <p>Click any character to start the game!</p>
+                        
+                        <!-- High Score Input Section (hidden by default) -->
+                        <div class="highscore-section" id="highscoreSection" style="display: none;">
+                            <div class="highscore-card">
+                                <h2>🏆 New High Score! 🏆</h2>
+                                <p class="final-score">Score: <span id="startScreenScore">0</span></p>
+                                <div class="name-input-group">
+                                    <input type="text" id="startScreenPlayerName" placeholder="Enter your name..." maxlength="20">
+                                    <button onclick="submitScoreFromStart()" class="submit-btn">Save Score</button>
+                                </div>
+                                <p class="skip-text">or <button onclick="skipHighScore()" class="skip-btn">skip and play again</button></p>
+                            </div>
+                        </div>
+                        
+                        <div class="start-characters">
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="dancing-man.svg" alt="Dancing Man" class="start-dancing-svg" />
+                                <span class="character-label">Dancing Man</span>
+                            </div>
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="golden-dancer.png" alt="Golden Dancer" class="start-golden-svg" />
+                                <span class="character-label">Golden Dancer</span>
+                            </div>
+                            <div class="start-character" onclick="startGame()" ontouchstart="startGame()">
+                                <img src="evil-guy.svg" alt="Evil Guy" class="start-evil-svg" />
+                                <span class="character-label">Evil Guy</span>
+                            </div>
+                        </div>
+                        <div class="start-buttons">
+                            <button class="start-btn" onclick="startGame()">🚀 New Game</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Leaderboard Modal -->
                 <div class="leaderboard-modal" id="leaderboardModal">
                     <div class="leaderboard-content">
@@ -80,23 +114,11 @@
                             <!-- Leaderboard entries will be populated here -->
                         </div>
                         <div class="leaderboard-footer">
-                            <p>Top scorer when countdown ends wins! 🎉</p>
+                            <p>Compete for the highest score! 🎉</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Score Submission Modal -->
-                <div class="score-modal" id="scoreModal">
-                    <div class="score-content">
-                        <h2>🎉 New High Score!</h2>
-                        <p>Score: <span id="finalScore"></span></p>
-                        <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
-                        <div class="score-buttons">
-                            <button onclick="submitScore()">Submit Score</button>
-                            <button onclick="closeScoreModal()">Skip</button>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="particles" id="particles"></div>
             <div class="dancing-man" id="dancingMan" onclick="catchDancer(event)" ontouchstart="catchDancer(event)">
@@ -108,24 +130,22 @@
         </div>
 
         <div class="footer">
-            <p>Good luck to all the amazing builders! 💪</p>
+            <p>Challenge your friends and beat the high score! 💪</p>
             <div class="links">
-                <a href="https://hackathon-countdown.netlify.app/" target="_blank" class="link-button">
-                    🎯 Another Countdown
-                </a>
-                <a href="https://worldslargesthackathon.devpost.com" target="_blank" class="link-button">
-                    🏆 Official Page
+                <a href="#" onclick="resetGame(); return false;" class="link-button">
+                    🔄 New Game
                 </a>
                 <a href="https://joy-ict.nl" target="_blank" class="link-button creator-link">
                     💼 Creator Portfolio
                 </a>
             </div>
-            <p class="creator">Made with ⚡ and love by <a href="https://joy-ict.nl" target="_blank"
+            <p class="creator">Made with 🎮 and passion by <a href="https://joy-ict.nl" target="_blank"
                     class="creator-name">Joy ICT</a></p>
+            <button id="sound-btn" class="control-btn">🔊 Sound</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="js/game.js"></script> 
 </body>
 
 </html>

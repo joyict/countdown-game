@@ -4,12 +4,15 @@
   "description": "Interactive countdown game for Bolt.new Hackathon with competitive leaderboard",
   "main": "index.html",
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "node server.js",
     "build": "echo 'No build step required'",
     "deploy": "netlify deploy --prod"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.0"
+    "@neondatabase/serverless": "^0.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "netlify-cli": "^22.4.0"
